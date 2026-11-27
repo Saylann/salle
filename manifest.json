@@ -1,7 +1,7 @@
 {
   "id": "salle",
   "name": "Salle",
-  "version": "2.41.10",
+  "version": "2.41.11",
   "minAppVersion": "1.5.0",
   "description": "Ton carnet de musculation : séance du jour à ton rythme, cible de chaque série, repos qui annonce la suite, progrès par muscle, mesures.",
   "author": "Écrit avec Claude",
