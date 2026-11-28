@@ -311,6 +311,8 @@
  *                       dessiné par disque de chaque côté, « Dans chaque main » aux haltères.
  *  2.41.16 (28/11/2026) « Comment faire » rangé par muscle : un titre par muscle, les exercices qui le travaillent
  *                       dessous (ceux du programme d'abord, « Au programme »).
+ *  2.41.17 (28/11/2026) Calories d'une photo : un produit emballé se lit sur son étiquette (le poids d'une unité, pas du
+ *                       paquet), seules les unités visibles comptent.
  */
 const obsidian = require('obsidian');
 

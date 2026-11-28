@@ -28,6 +28,9 @@ const IA_PAGE_CLE = 'https://console.groq.com/keys';
 // valeurs pour 100 g ; le plugin fait le calcul lui-même (L.lirePlat : poids × valeur pour 100 g, puis la somme), sans erreur
 // d'arithmétique. Les oublis (huile, sauce) et les portions sous-estimées font l'essentiel de l'écart des applis photo (étude
 // NIH, congrès Nutrition 2026, préliminaire) : la consigne les nomme.
+// 2.41.17 (un seul pancake emballé compté 336 kcal comme plusieurs, un skyr 95 kcal au lieu de 76) : un produit emballé se lit
+// sur son étiquette (valeurs pour 100 g, poids d'une unité), on ne compte que les unités visibles ; « la plus grande portion
+// en cas de doute » ne vaut plus que pour une assiette.
 const IA_CONSIGNE = [
   'Tu analyses un repas pris en photo, pour un carnet de musculation.',
   'Liste chaque aliment visible, sans en oublier :',
@@ -42,7 +45,11 @@ const IA_CONSIGNE = [
   'Les féculents (pâtes, riz, gnocchis, pommes de terre) :',
   'une assiette pleine en contient environ 300 g cuits.',
   'Des aliments mélangés (des œufs dans des pâtes, par exemple) : liste chacun.',
-  'En cas de doute sur une portion, prends la plus grande.',
+  'Un produit emballé (pot, sachet, barquette) : lis son étiquette ;',
+  'prends ses valeurs pour 100 g et le poids écrit d\'une unité',
+  '(un pot de skyr, un pancake), jamais celui du paquet entier.',
+  'Compte seulement les unités visibles sur la photo.',
+  'Une assiette, sans étiquette : en cas de doute, prends la portion la plus grande.',
   'Réponds seulement en JSON :',
   '{"plat": "nom court en français", "aliments": [{"nom": "riz blanc cuit",',
   '"grammes": 200, "kcal_100g": 130, "proteines_100g": 2.7,',
