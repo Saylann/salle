@@ -1,0 +1,79 @@
+{
+  "id": "esthetique",
+  "nom": "Un physique plus beau",
+  "pour": "Débutant, 3 séances par semaine : la carrure, les bras et les avant-bras.",
+  "musclesPrioritaires": [
+    "dos",
+    "epaules",
+    "pecs",
+    "biceps",
+    "triceps",
+    "avant_bras"
+  ],
+  "seriesParSemaine": {
+    "zone": [
+      10,
+      15
+    ],
+    "max": 20,
+    "parSeance": 8
+  },
+  "dose": {
+    "seriesMaxParExercice": 4,
+    "seancesDeDecouverte": 4,
+    "seriesEnDecouverte": 2,
+    "dureeCourte": 45,
+    "dureeLongue": 75,
+    "exercicesRenforces": 3
+  },
+  "progressionDesSeries": {
+    "apresJours": 84,
+    "bloqueJours": 21,
+    "bloqueSemaines": 3,
+    "parExo": 4,
+    "blocJours": 28,
+    "partBloc": 0.2
+  },
+  "surplusCalories": 0.15, "proteines": {
+    "parKg": 1.6,
+    "minimum": 110,
+    "parKgHaut": 2.2,
+    "minimumHaut": 150
+  },
+  "priseDePoidsParSemaine": {
+    "min": 0.25,
+    "max": 0.5
+  },
+  "paliers": [
+    {
+      "titre": "Débutant",
+      "seances": 0,
+      "xp": 0,
+      "phrase": "Ton point de départ.\nPourquoi : au début, le muscle gonfle surtout d'eau ; la vraie prise se voit plus tard."
+    },
+    {
+      "titre": "Régulier",
+      "seances": 18,
+      "xp": 10000,
+      "phrase": "La vraie prise de muscle commence à se voir."
+    },
+    {
+      "titre": "Solide",
+      "seances": 36,
+      "xp": 20000,
+      "phrase": "Environ 12 semaines : compare tes photos, tes épaules et ta taille.\nPourquoi : c'est la durée des études ; épaules et taille font tes proportions."
+    },
+    {
+      "titre": "Costaud",
+      "seances": 72,
+      "xp": 40000,
+      "phrase": "Environ 6 mois : les gains continuent, plus lentement. C'est normal."
+    },
+    {
+      "titre": "Confirmé",
+      "seances": 144,
+      "xp": 80000,
+      "phrase": "Environ un an : le plus gros des gains du débutant est fait.\nEt après : ça avance plus lentement."
+    }
+  ]
+}

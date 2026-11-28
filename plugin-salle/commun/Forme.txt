@@ -1,0 +1,18 @@
+---
+salle: forme
+---
+# Forme
+
+> [!info] Ton carnet de forme
+> Une ligne par bilan « Avant de commencer ». Le bilan pose 3 questions :
+> - **Une douleur ?** « Ça tire » : séance normale, sans record poussé sur cette zone.
+> - **Douleur vive, ou dans l'articulation** : les exercices de la zone sont retirés.
+> - **Des courbatures fortes ?** (tu ne tends pas le bras à fond) : la zone passe à 2 séries, environ un tiers plus légers.
+> - **Courbatures légères** : rien ne change, séance normale.
+> - **Ta nuit ?** Moins de 6 h : mêmes charges, sans chercher de record. La ligne le dit (« sommeil : moins de 6 h »).
+
+> [!warning] Quand consulter (le plugin ne pose pas de diagnostic)
+> - **Articulation** : une douleur qui revient à la séance suivante, dure plus d'une semaine ou empire : médecin ou kiné.
+> - **Urines foncées** (brunes, rouges, couleur thé), ou muscle très gonflé et dur : médecin ou urgences le jour même.
+> - **Douleur dans la poitrine**, palpitations ou malaise pendant l'effort : arrête et consulte.
+

@@ -1,0 +1,468 @@
+/* La base : les variables du plugin, la mise en page, les cartes, les icônes, les boutons, les tuiles, les choix, les classes
+   partagées par tous les écrans, la barre du niveau. Le style « sportif et net » : une identité propre au plugin. Accent vert citron (lime), orange pour les records
+   et les approches ; fonds sombres profonds en thème sombre, fonds clairs doux en thème clair ; cartes très arrondies, sans
+   bordure, ombre douce ; titres très gras et serrés, chiffres arrondis. Pensé d'abord pour l'iPhone (une colonne, 44 px au
+   moins pour le doigt), puis le Mac. Polices du système seulement (hors ligne à la salle).
+   L'esthétique sert la lecture à la salle : la cible de la série, « Série faite », le minuteur et les progrès sautent aux yeux.
+
+   ── LES VARIABLES (sur .salle ; thème clair par défaut et sous body.theme-light, thème sombre sous body.theme-dark) ──
+   Contraste : tout ce qui est du texte fait au moins 4,5:1 sur --salle-fond, --salle-carte et --salle-carte-2.
+   Fonds
+     --salle-fond          le fond de l'écran (presque noir en sombre, gris très clair et doux en clair)
+     --salle-carte         le fond d'une carte (posée sur --salle-fond)
+     --salle-carte-2       un élément posé sur une carte : bouton secondaire, champ, pastille, creux
+     --salle-carte-bord    le contour d'une carte (un filet clair en sombre ; rien en clair : l'ombre suffit)
+     --salle-bord          un séparateur fin (lignes de réglage, listes)
+     --salle-ombre         l'ombre douce d'une carte ; --salle-ombre-forte : un élément qui flotte (barre du bas)
+   Texte
+     --salle-texte         le texte normal ; --salle-texte-doux : le texte secondaire ; --salle-pale : « à venir » (reste lisible)
+   Accent (lime) : maintenant, l'action, fait
+     --salle-accent        pour du TEXTE ou une icône : lime en sombre, vert foncé en clair (le lime sur blanc est illisible)
+     --salle-accent-fond   le lime plein : fond du bouton principal, d'une pastille pleine, de la série en cours
+     --salle-sur-accent    le texte posé sur --salle-accent-fond (presque noir, dans les deux thèmes)
+     --salle-accent-doux   un fond teinté lime ; texte dessus : --salle-texte ou --salle-accent
+     --salle-accent-moyen  un contour lime ; --salle-accent-lueur : l'ombre colorée du gros bouton
+   Record (orange doré, trophée) et approche (orange, flamme) : même schéma
+     --salle-record / --salle-record-fond / --salle-sur-record / --salle-record-doux
+     --salle-approche / --salle-approche-fond / --salle-sur-approche / --salle-approche-doux
+   Anciens noms, gardés (même sens, valeurs du lime) : --salle-maintenant (= accent), --salle-maintenant-doux, --salle-fait (= accent,
+     toujours avec une coche), --salle-fait-doux, --salle-pale. Plus de vert ni d'or à part : lime = fait et maintenant.
+   Alerte de santé et « supprimer » seulement (jamais pour un résultat) : --salle-danger, --salle-danger-fond, --salle-danger-doux
+   Teintes des pastilles (icônes des tuiles, une par tuile ; ≥ 3:1 sur la carte) : --salle-t-bleu, --salle-t-violet, --salle-t-lime,
+     --salle-t-orange, --salle-t-rose, --salle-t-ambre, --salle-t-gris. Fond de la pastille : color-mix(in srgb, teinte 15 %, transparent).
+   Carte héros (toujours sombre, même en thème clair) : --salle-heros-fond (dégradé), --salle-heros-texte, --salle-heros-doux.
+     Dans .salle-heros, toutes les variables de fond et de texte prennent leurs valeurs sombres : ce qui est dedans suit.
+   Formes : --salle-rayon (20px, carte), --salle-rayon-m (14px, bouton, tuile, champ), --salle-rayon-s (10px, petit élément),
+     --salle-cible (44px, le doigt ; ce n'est pas la « cible » de la série), --salle-gros (grands chiffres des champs).
+   Polices (système seulement) : --salle-titre (SF Pro Display), --salle-chiffres (SF Pro Rounded, à chasse fixe avec
+     font-variant-numeric: tabular-nums), --salle-graisse (800, les titres), --salle-serre (-0.025em, l'interlettrage des titres).
+   Mouvement : --salle-vite (120 ms, l'appui), --salle-doux (220 ms, l'apparition). Appui = scale(0.97) ; apparition = fondu court.
+     Rien sous prefers-reduced-motion (en bas de ce fichier, et 90-appareils.css).
+   Variables d'Obsidian remappées dans .salle (pour que tout écran suive, même une règle ancienne) : --background-primary
+     (= --salle-fond), --background-secondary (= --salle-carte), --background-modifier-border (= --salle-bord), --text-normal,
+     --text-muted, --text-faint, --text-accent (= --salle-accent), --interactive-accent (sûr en texte ET en fond avec
+     --text-on-accent : lime + presque noir en sombre, vert foncé + blanc en clair). Pour le lime plein : --salle-accent-fond.
+   Une couleur, un sens ; jamais de rouge pour un résultat ; la couleur n'est jamais seule (une coche, un trophée, un mot). */
+
+.salle {
+  /* Thème clair (par défaut, et body.theme-light) */
+  --salle-fond: #f2f3ef;
+  --salle-carte: #ffffff;
+  --salle-carte-2: #eef0ea;
+  --salle-carte-bord: transparent;
+  --salle-bord: rgba(20, 24, 16, 0.08);
+  --salle-ombre: 0 1px 2px rgba(20, 24, 16, 0.04), 0 6px 20px -4px rgba(20, 24, 16, 0.08);
+  --salle-ombre-forte: 0 -2px 12px rgba(20, 24, 16, 0.06), 0 8px 28px -6px rgba(20, 24, 16, 0.18);
+  --salle-texte: #14171a;
+  --salle-texte-doux: #5c636e;
+  --salle-pale: #6b7280;
+  --salle-accent: #3d6b00;
+  --salle-accent-fond: #c4f23a;
+  --salle-sur-accent: #10140a;
+  --salle-accent-doux: rgba(150, 205, 20, 0.16);
+  --salle-accent-moyen: rgba(110, 160, 0, 0.45);
+  --salle-accent-lueur: rgba(120, 170, 0, 0.35);
+  --salle-record: #8f5800;
+  --salle-record-fond: #ffb020;
+  --salle-sur-record: #1a1205;
+  --salle-record-doux: rgba(255, 176, 32, 0.18);
+  --salle-approche: #b23f00;
+  --salle-approche-fond: #ff7a3d;
+  --salle-sur-approche: #1a0c05;
+  --salle-approche-doux: rgba(255, 122, 61, 0.14);
+  --salle-danger: #c62828;
+  --salle-danger-fond: #d93636;
+  --salle-danger-doux: rgba(217, 54, 54, 0.1);
+  --salle-t-bleu: #2b6cb0;
+  --salle-t-violet: #6d4fd6;
+  --salle-t-lime: #3d6b00;
+  --salle-t-orange: #b23f00;
+  --salle-t-rose: #c2417a;
+  --salle-t-ambre: #9a6700;
+  --salle-t-gris: #5b6470;
+  /* La carte héros : toujours sombre */
+  --salle-heros-fond:
+    radial-gradient(120% 90% at 100% 0%, rgba(196, 242, 58, 0.30) 0%, rgba(196, 242, 58, 0) 55%),
+    radial-gradient(90% 70% at 0% 100%, rgba(60, 90, 20, 0.35) 0%, rgba(60, 90, 20, 0) 60%),
+    linear-gradient(160deg, #1d2229 0%, #121519 60%, #0c0e11 100%);
+  --salle-heros-texte: #f4f6f8;
+  --salle-heros-doux: #b9c0ca;
+  /* Formes, polices, mouvement (les mêmes dans les deux thèmes) */
+  --salle-rayon: 20px;
+  --salle-rayon-m: 14px;
+  --salle-rayon-s: 10px;
+  --salle-cible: 44px;
+  --salle-gros: 30px;
+  --salle-titre: -apple-system, "SF Pro Display", BlinkMacSystemFont, var(--font-interface, system-ui), "Segoe UI", sans-serif;
+  --salle-chiffres: ui-rounded, "SF Pro Rounded", -apple-system-ui-rounded, -apple-system, var(--font-interface, system-ui), sans-serif;
+  --salle-graisse: 800;
+  --salle-serre: -0.025em;
+  --salle-vite: 120ms;
+  --salle-doux: 220ms;
+  --salle-zone-sure: env(safe-area-inset-bottom, 0px);
+  --background-modifier-hover: rgba(20, 24, 16, 0.05);
+  --interactive-accent: #3d6b00;
+  --interactive-accent-hover: #345c00;
+  --text-on-accent: #ffffff;
+
+  padding: var(--size-4-3, 12px) var(--size-4-4, 16px) var(--size-4-9, 36px);
+  max-width: 640px; margin: 0 auto; box-sizing: border-box;
+  background-color: var(--salle-fond);
+  font-size: var(--font-ui-medium, 15px); line-height: 1.45; color: var(--salle-texte);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+/* Les anciens noms (maintenant, fait…) et les variables d'Obsidian, déduits des variables ci-dessus. Redits sur .salle-heros : une variable
+   qui en cite une autre se calcule là où elle est écrite ; la carte héros (sombre même en clair) doit les recalculer. */
+.salle, .salle .salle-heros {
+  --salle-maintenant: var(--salle-accent);
+  --salle-maintenant-doux: var(--salle-accent-doux);
+  --salle-fait: var(--salle-accent);
+  --salle-fait-doux: var(--salle-accent-doux);
+  --background-primary: var(--salle-fond);
+  --background-secondary: var(--salle-carte);
+  --background-modifier-border: var(--salle-bord);
+  --interactive-normal: var(--salle-carte-2);
+  --text-normal: var(--salle-texte);
+  --text-muted: var(--salle-texte-doux);
+  --text-faint: var(--salle-pale);
+  --text-accent: var(--salle-accent);
+}
+/* Sur un écran large (iPad, Mac), la colonne fait 640 px : le reste de la vue prend le même fond. */
+.workspace-leaf-content[data-type="salle-vue"] { background-color: #f2f3ef; }
+.theme-dark .workspace-leaf-content[data-type="salle-vue"] { background-color: #0b0d10; }
+
+/* Thème sombre : fonds profonds, lime vif */
+.theme-dark .salle, .salle .salle-heros {
+  --salle-fond: #0b0d10;
+  --salle-carte: #16191e;
+  --salle-carte-2: #20242b;
+  --salle-carte-bord: rgba(255, 255, 255, 0.06);
+  --salle-bord: rgba(255, 255, 255, 0.08);
+  --salle-ombre: 0 1px 0 rgba(255, 255, 255, 0.02) inset, 0 8px 24px -10px rgba(0, 0, 0, 0.6);
+  --salle-ombre-forte: 0 -1px 0 rgba(255, 255, 255, 0.05), 0 10px 30px -6px rgba(0, 0, 0, 0.7);
+  --salle-texte: #f2f4f7;
+  --salle-texte-doux: #a1a8b3;
+  --salle-pale: #858c97;
+  --salle-accent: #c8f53c;
+  --salle-accent-fond: #c8f53c;
+  --salle-sur-accent: #10140a;
+  --salle-accent-doux: rgba(200, 245, 60, 0.13);
+  --salle-accent-moyen: rgba(200, 245, 60, 0.45);
+  --salle-accent-lueur: rgba(200, 245, 60, 0.28);
+  --salle-record: #ffb020;
+  --salle-record-fond: #ffb020;
+  --salle-sur-record: #1a1205;
+  --salle-record-doux: rgba(255, 176, 32, 0.15);
+  --salle-approche: #ff8a4c;
+  --salle-approche-fond: #ff7a3d;
+  --salle-sur-approche: #1a0c05;
+  --salle-approche-doux: rgba(255, 122, 61, 0.14);
+  --salle-danger: #ff6b6b;
+  --salle-danger-fond: #d93636;
+  --salle-danger-doux: rgba(255, 107, 107, 0.12);
+  --salle-t-bleu: #6aa7ff;
+  --salle-t-violet: #a78bfa;
+  --salle-t-lime: #c8f53c;
+  --salle-t-orange: #ff8a4c;
+  --salle-t-rose: #f472b6;
+  --salle-t-ambre: #ffc04d;
+  --salle-t-gris: #9aa3ad;
+  --background-modifier-hover: rgba(255, 255, 255, 0.06);
+  --interactive-accent: #c8f53c;
+  --interactive-accent-hover: #d4f86a;
+  --text-on-accent: #10140a;
+}
+.theme-light .salle { color-scheme: light; }
+.theme-dark .salle { color-scheme: dark; }
+.salle *, .salle *::before, .salle *::after { box-sizing: border-box; }
+
+/* ── Typographie : titres très gras et serrés, chiffres arrondis ── */
+.salle h2 { margin: 0; font-family: var(--salle-titre); font-size: 28px; font-weight: var(--salle-graisse); letter-spacing: var(--salle-serre); line-height: 1.1; }
+.salle h3 { margin: var(--size-2-1, 2px) 0 var(--size-2-3, 6px); font-family: var(--salle-titre); font-size: 21px; font-weight: var(--salle-graisse); letter-spacing: -0.02em; line-height: 1.15; overflow-wrap: anywhere; }
+.salle p { margin: var(--size-2-3, 6px) 0; }
+.salle strong { font-weight: 700; }
+
+/* ── Mise en page ── */
+.salle-entete { display: flex; align-items: center; gap: var(--size-4-2, 8px) var(--size-4-3, 12px); flex-wrap: wrap; margin: var(--size-4-1, 4px) 0 var(--size-4-4, 16px); }
+/* iPhone : sur un écran avec retour, « ‹ Accueil » et « Plein écran » sur la première ligne, le titre dessous sur toute la
+   largeur (2 lignes au lieu de 3 ; assemblage 2.0). Sans :has() (iOS < 15.4), la mise en page d'avant reste. */
+@media (max-width: 480px) { .salle-entete:has(> .salle-retour) > h2 { order: 1; flex: 1 1 100%; min-width: 0; } }
+.salle-entre { justify-content: space-between; align-items: center; }
+.salle-ligne { display: flex; align-items: center; gap: var(--size-4-2, 8px); min-width: 0; }
+.salle-petit { color: var(--salle-texte-doux); font-size: var(--font-ui-small, 13px); }
+.salle-titre-seance { flex: 1; min-width: 0; }
+.salle-titre-seance h2 { overflow-wrap: anywhere; font-size: 22px; letter-spacing: -0.02em; }   /* entre « Accueil » et « Terminer » : 22 px ne coupe pas « Séance A » */
+.salle-titre-section { margin: var(--size-4-4, 16px) var(--size-2-1, 2px) var(--size-4-2, 8px); font-weight: 600; }
+.salle-bas { text-align: center; margin: var(--size-4-5, 20px) 0 var(--size-4-2, 8px); }
+.salle-fin { height: 0; }
+
+/* ── Cartes : très arrondies, sans bordure (un filet en sombre), ombre douce ── */
+.salle-carte { background: var(--salle-carte); border: 1px solid var(--salle-carte-bord); border-radius: var(--salle-rayon); padding: 16px 18px; margin: 0 0 12px; box-shadow: var(--salle-ombre); }
+.salle-vedette { background: linear-gradient(160deg, var(--salle-accent-doux) 0%, transparent 62%), var(--salle-carte); border-color: var(--salle-accent-moyen); padding: 18px; }
+.salle-vedette h3 { font-size: 26px; letter-spacing: var(--salle-serre); margin-top: var(--size-4-1, 4px); }
+.salle-alerte { border-color: color-mix(in srgb, var(--salle-approche-fond) 45%, transparent); background: linear-gradient(0deg, var(--salle-approche-doux), var(--salle-approche-doux)), var(--salle-carte); }
+.salle-conseil { border-left: 3px solid var(--salle-accent-fond); padding: var(--size-2-1, 2px) 0 var(--size-2-1, 2px) var(--size-4-3, 12px); margin: var(--size-4-3, 12px) 0; color: var(--salle-texte); }
+/* Le titre d'une carte (strong ou h3 avec une icône) : l'icône dans une petite pastille lime douce. */
+.salle .salle-carte > strong.salle-a-ic { display: flex; align-items: center; gap: 10px; font-family: var(--salle-titre); font-size: 16px; font-weight: 800; letter-spacing: -0.015em; }
+.salle .salle-carte > strong.salle-a-ic > .salle-ic { width: 30px; height: 30px; border-radius: var(--salle-rayon-s); background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: 16px; }
+
+/* ── Icônes (obsidian.setIcon : un <svg class="svg-icon"> qui suit --icon-size) ── */
+.salle-ic { display: inline-flex; align-items: center; justify-content: center; flex: none; --icon-size: var(--icon-m, 18px); line-height: 0; }
+.salle-ic svg { width: var(--icon-size); height: var(--icon-size); stroke-width: 2.25; }
+.salle .salle-a-ic { display: inline-flex; align-items: center; gap: var(--size-4-2, 8px); }
+.salle h2.salle-a-ic, .salle h3.salle-a-ic, .salle strong.salle-a-ic, .salle li.salle-a-ic, .salle .salle-grand.salle-a-ic { display: flex; }
+.salle h2 .salle-ic { --icon-size: 22px; color: var(--salle-accent); }
+.salle h3 .salle-ic, .salle strong > .salle-ic { color: var(--salle-accent); }
+.salle .salle-mini .salle-ic, .salle .salle-retour .salle-ic, .salle-info .salle-ic { --icon-size: var(--icon-s, 16px); }
+.salle .salle-principal .salle-ic, .salle .salle-danger .salle-ic { color: inherit; }
+.salle .salle-pm.salle-a-ic .salle-repli { display: none; }
+
+/* ── Boutons : dessinés par le plugin (sur iPhone, Obsidian les affiche sans bord) ── */
+.salle .salle-bouton, .salle .salle-tuile, .salle .salle-retour {
+  border: 1px solid transparent; background: var(--salle-carte-2); color: var(--salle-texte);
+  box-shadow: none; cursor: pointer; font: inherit; height: auto; white-space: normal; -webkit-tap-highlight-color: transparent;
+}
+.salle .salle-bouton { min-height: var(--salle-cible); padding: 10px 18px; border-radius: var(--salle-rayon-m); font-size: var(--font-ui-medium, 15px); font-weight: 650; letter-spacing: -0.01em; justify-content: center; text-align: center; }
+.salle .salle-mini { min-height: var(--salle-cible); padding: 6px 15px; border-radius: 999px; font-size: 14px; font-weight: 650; }
+.salle .salle-principal { background: var(--salle-accent-fond); color: var(--salle-sur-accent); border-color: transparent; font-weight: 750; }
+/* Un choix actif (aria-pressed : jour de salle, réponse actuelle, « Activé ») : une coche en plus du lime (la couleur n'est
+   jamais seule ; en thème clair, le lime et le gris clair se ressemblent pour un œil qui voit mal les couleurs). */
+.salle .salle-bouton.salle-principal[aria-pressed="true"]:not(.salle-a-ic)::before { content: "✓"; margin-right: 6px; font-weight: 900; }
+.salle .salle-grand { width: 100%; min-height: 58px; font-family: var(--salle-titre); font-size: 18px; font-weight: var(--salle-graisse); letter-spacing: -0.015em; margin: 14px 0 4px; border-radius: 18px; }
+.salle .salle-grand .salle-ic { --icon-size: 20px; }
+.salle .salle-principal.salle-grand { box-shadow: 0 10px 24px -8px var(--salle-accent-lueur), 0 1px 0 rgba(255, 255, 255, 0.35) inset; }
+.salle .salle-principal.salle-grand .salle-ic svg { fill: currentColor; }
+.salle .salle-danger { background: var(--salle-danger-fond); color: #ffffff; border-color: transparent; }
+.salle .salle-retour { min-height: var(--salle-cible); padding: 6px 14px 6px 8px; border-radius: 999px; font-size: 14px; font-weight: 650; background: var(--salle-carte); box-shadow: var(--salle-ombre); border-color: var(--salle-carte-bord); flex: none; gap: var(--size-2-1, 2px); }
+.salle .salle-bouton:active, .salle .salle-tuile:active, .salle .salle-retour:active, .salle .salle-rang:active { transform: scale(0.97); }
+.salle .salle-bouton, .salle .salle-tuile, .salle .salle-retour, .salle .salle-rang { transition: transform var(--salle-vite) ease, background-color 0.15s ease, box-shadow 0.15s ease; }
+.salle button:focus-visible, .salle [role="button"]:focus-visible { outline: 2px solid var(--salle-accent); outline-offset: 2px; }
+@media (hover: hover) {
+  .salle .salle-bouton:hover, .salle .salle-retour:hover { background: color-mix(in srgb, var(--salle-texte) 8%, var(--salle-carte-2)); }
+  .salle .salle-tuile:hover { background: color-mix(in srgb, var(--salle-texte) 4%, var(--salle-carte)); }
+  .salle .salle-principal:hover { background: color-mix(in srgb, #ffffff 14%, var(--salle-accent-fond)); }
+  .salle .salle-danger:hover { background: var(--salle-danger-fond); }
+}
+.salle-choix { display: flex; flex-wrap: wrap; gap: var(--size-4-2, 8px); margin: var(--size-4-3, 12px) 0 var(--size-4-1, 4px); align-items: center; }
+.salle-choix > .salle-bouton { flex: 0 1 auto; max-width: 100%; }
+/* Le bouton en forme de lien (« Refaire le bilan », « Annuler la séance »…) : discret, mais 44 px de haut pour le doigt. */
+.salle .salle-lien { min-height: var(--salle-cible); padding: var(--size-4-1, 4px) var(--size-4-2, 8px); background: transparent; border: none; box-shadow: none; color: var(--salle-texte-doux); font-size: 14px; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; cursor: pointer; }
+@media (hover: hover) { .salle .salle-lien:hover { color: var(--salle-texte); background: transparent; } }
+
+/* ── Classes partagées : les écrans s'en servent sans les redéfinir ── */
+.salle-liste { list-style: none; margin: var(--size-4-2, 8px) 0; padding-left: 0; counter-reset: exo; }
+.salle-liste li { counter-increment: exo; display: flex; align-items: center; gap: var(--size-4-3, 12px); padding: 5px 0; min-width: 0; }
+.salle-liste li::before { content: counter(exo); flex: none; width: 26px; height: 26px; border-radius: 50%; background: var(--salle-accent-doux); color: var(--salle-accent); font-family: var(--salle-chiffres); font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums; display: flex; align-items: center; justify-content: center; }
+.salle-liste li.salle-a-ic::before { content: none; }
+.salle-liste li > .salle-ic { width: 26px; height: 26px; border-radius: 50%; background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: var(--icon-xs, 14px); }
+
+/* Les tuiles : une icône dans une pastille de couleur (une teinte par tuile, douce), le nom à côté. */
+.salle-tuiles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin-top: var(--size-4-1, 4px); }
+.salle .salle-tuile {
+  --salle-teinte: var(--salle-accent);
+  display: flex; flex-direction: row; align-items: center; justify-content: flex-start; gap: 12px;
+  min-height: 64px; padding: 12px 14px; border-radius: 18px; background: var(--salle-carte); border-color: var(--salle-carte-bord); box-shadow: var(--salle-ombre);
+  text-align: left; font-size: 14px; font-weight: 700; letter-spacing: -0.01em; line-height: 1.2; overflow-wrap: anywhere;
+}
+.salle .salle-tuile .salle-ic { width: 38px; height: 38px; border-radius: 12px; --icon-size: 19px; color: var(--salle-teinte); background: color-mix(in srgb, var(--salle-teinte) 15%, transparent); }
+/* Écran large (iPad, Mac) : 4 colonnes, la pastille au-dessus du nom (un nom ne se coupe jamais au milieu). */
+@media (min-width: 560px) {
+  .salle-tuiles { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .salle .salle-tuile { flex-direction: column; justify-content: center; text-align: center; gap: 8px; min-height: 100px; overflow-wrap: normal; hyphens: auto; }
+}
+
+.salle-infos { display: flex; flex-wrap: wrap; gap: var(--size-2-3, 6px); margin: var(--size-2-3, 6px) 0 var(--size-4-2, 8px); }
+.salle-info { display: inline-flex; align-items: center; border-radius: 999px; padding: 5px 12px; background: var(--salle-carte-2); font-weight: 650; font-size: var(--font-ui-small, 13px); }
+.salle .salle-info.salle-a-ic { gap: var(--size-4-1, 4px); }
+.salle-info .salle-ic { color: var(--salle-accent); }
+.salle-compteur { display: flex; align-items: center; gap: var(--size-4-2, 8px); margin: var(--size-4-2, 8px) 0; }
+.salle .salle-pm { width: 56px; min-height: 56px; padding: 0; flex: none; border-radius: 16px; font-size: var(--font-ui-large, 20px); }
+.salle .salle-pm .salle-ic { --icon-size: 22px; }
+.salle .salle-champ {
+  flex: 1; min-width: 0; width: 80px; height: 56px; padding: 0 var(--size-4-1, 4px); text-align: center;
+  font-family: var(--salle-chiffres); font-size: var(--salle-gros); font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em;
+  border: 1.5px solid transparent; border-radius: 16px;
+  background: var(--salle-carte-2); color: var(--salle-texte); box-shadow: none; -webkit-appearance: none; appearance: none;
+}
+.salle .salle-champ:focus { border-color: var(--salle-accent); outline: none; box-shadow: 0 0 0 4px var(--salle-accent-doux); }
+.salle-unite { width: 40px; flex: none; color: var(--salle-texte-doux); font-size: var(--font-ui-small, 13px); font-weight: 650; }
+.salle .salle-rang { display: flex; justify-content: space-between; align-items: center; gap: var(--size-4-2, 8px); width: 100%; min-height: var(--salle-cible); height: auto; margin: var(--size-2-2, 4px) 0; padding: var(--size-4-2, 8px) var(--size-4-3, 12px); text-align: left; background: transparent; border: 1px solid transparent; box-shadow: none; border-radius: var(--salle-rayon-m); cursor: pointer; font: inherit; color: inherit; white-space: normal; }
+.salle .salle-rang > span:first-child, .salle .salle-rang > strong:first-child { min-width: 0; overflow-wrap: anywhere; }
+.salle .salle-rang > :last-child { flex: none; }
+.salle .salle-courant { border-color: var(--salle-accent-moyen); background: var(--salle-accent-doux); font-weight: 650; }
+.salle .salle-fini { color: var(--salle-texte-doux); }
+@media (hover: hover) { .salle .salle-rang:hover { background: var(--background-modifier-hover); } }
+.salle-texte { margin-top: var(--size-4-2, 8px); border-top: 1px solid var(--salle-bord); padding-top: var(--size-2-3, 6px); overflow-wrap: anywhere; }
+.salle-texte ul { margin: var(--size-4-1, 4px) 0; padding-left: var(--size-4-5, 20px); }
+.salle-texte ol { margin: var(--size-4-1, 4px) 0; padding-left: var(--size-4-6, 24px); }
+.salle-texte p { margin: var(--size-4-2, 8px) 0; line-height: 1.6; }
+.salle-texte li { margin: var(--size-2-3, 6px) 0; line-height: 1.55; }
+.salle-texte li::marker { color: var(--salle-accent); }
+.salle-texte code { font-size: 0.9em; }
+.salle-texte a { color: var(--salle-accent); }
+/* Une fiche d'exercice (ficheExercice) : le nom du champ en petit, en couleur ; le texte en gros, bien lisible en salle. */
+.salle-fiche-champs { margin-top: var(--size-4-2, 8px); border-top: 1px solid var(--salle-bord); }
+.salle .salle-fiche-champ { margin: 14px 0 0; }
+.salle .salle-fiche-nom { font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--salle-accent); }
+.salle .salle-fiche-champ > .salle-texte { margin-top: 2px; border-top: none; padding-top: 0; font-size: 1.12em; font-weight: 550; color: var(--salle-texte); }
+.salle .salle-fiche-champ > .salle-texte p { margin: 0; line-height: 1.45; }
+.salle .salle-fiche-champ > .salle-texte li { margin: 4px 0; line-height: 1.4; }
+.salle-sous-titre { font-family: var(--salle-titre); font-weight: 800; letter-spacing: -0.01em; margin-top: var(--size-4-3, 12px) !important; }
+
+/* ── Chiffres d'instrument, états, pastilles ── */
+/* Les chiffres en police arrondie (SF Pro Rounded sur iPhone et Mac avec Safari ; ailleurs, la police habituelle), à chasse fixe. */
+.salle-nombre, .salle .salle-champ.salle-nombre { font-family: var(--salle-chiffres); font-variant-numeric: tabular-nums; font-weight: 700; }
+.salle-etat-maintenant { color: var(--salle-accent); border-color: var(--salle-accent); background: var(--salle-accent-doux); }
+.salle-etat-fait { color: var(--salle-accent); border-color: var(--salle-accent-moyen); background: var(--salle-accent-doux); }
+.salle-etat-record { color: var(--salle-texte); border-color: var(--salle-record-fond); background: var(--salle-record-doux); }
+.salle-etat-approche { color: var(--salle-texte); border-color: color-mix(in srgb, var(--salle-approche-fond) 60%, transparent); background: var(--salle-approche-doux); }
+.salle-etat-pale { color: var(--salle-pale); border-color: var(--salle-bord); background: transparent; }
+.salle-badge {
+  display: inline-flex; align-items: center; gap: var(--size-2-2, 4px); flex: none; white-space: nowrap;
+  padding: 3px 10px; border: 1px solid var(--salle-bord); border-radius: 999px;
+  font-size: var(--font-ui-smaller, 12px); font-weight: 700; line-height: 1.4;
+}
+.salle-badge.salle-etat-pale { color: var(--salle-texte-doux); }
+/* La consigne vue une fois par appareil : une carte discrète (un filet lime à gauche) et son bouton « Compris ». */
+.salle-consigne { border: 1px dashed var(--salle-accent-moyen); background: linear-gradient(0deg, var(--salle-accent-doux), var(--salle-accent-doux)), var(--salle-carte); box-shadow: none; }
+.salle-consigne p { margin-top: 0; }
+.salle-consigne .salle-bouton { margin-top: var(--size-2-3, 6px); }
+/* 2.5.1 : des textes courts (texteCourt, puces, pourquoi : src/50-ui.js). Des puces d'une ligne, le mot clé en gras ; le
+   « Pourquoi » replié, en petit et discret, ouvert d'un toucher (<details>, rien à programmer). */
+.salle .salle-court > p { margin: 0; }
+.salle .salle-puces { margin: 0; padding-left: 1.1em; }
+.salle .salle-puces li { margin: 2px 0; line-height: 1.4; }
+.salle .salle-puces li::marker { color: var(--salle-accent); }
+.salle details.salle-pourquoi { margin: 4px 0 0; font-size: var(--font-ui-small, 13px); color: var(--salle-texte-doux); }
+.salle details.salle-pourquoi > summary { display: inline-flex; align-items: center; gap: 4px; min-height: 32px; cursor: pointer; font-weight: 650; color: var(--salle-accent); list-style: none; }
+.salle details.salle-pourquoi > summary::-webkit-details-marker { display: none; }
+.salle details.salle-pourquoi > summary::before { content: "▸"; font-size: 0.9em; transition: transform var(--salle-vite, 120ms); }
+.salle details.salle-pourquoi[open] > summary::before { transform: rotate(90deg); }
+.salle details.salle-pourquoi > p { margin: 2px 0 6px; line-height: 1.45; }
+.salle .salle-heros details.salle-pourquoi { color: var(--salle-heros-doux); }
+/* L'interrupteur iOS 18 caché dans le gros bouton : basculé par le toucher, il fait vibrer. Invisible et inerte ailleurs. */
+.salle .salle-vibre { position: absolute; opacity: 0; width: 1px; height: 1px; margin: 0; pointer-events: none; }
+.salle label[role="button"] { position: relative; cursor: pointer; -webkit-user-select: none; user-select: none; }
+
+/* ── La barre du niveau (barreNiveau, src/50-ui.js : accueil, bilan de fin, Progrès). Un rail rond, le plein en lime
+   avec une petite lueur ; en thème clair, un filet vert foncé autour du plein (le lime seul sur un rail clair se voit mal).
+   La barre avance par une transition (bilan de fin) ; rien si l'appareil demande moins de mouvement. ── */
+.salle-niveau-barre { position: relative; display: block; width: 100%; height: 10px; border-radius: 999px; overflow: hidden; background: color-mix(in srgb, var(--salle-texte) 10%, transparent); }
+.salle-niveau-plein {
+  display: block; height: 100%; width: 0; border-radius: inherit;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--salle-accent-fond) 78%, #ffffff) 0%, var(--salle-accent-fond) 70%);
+  box-shadow: inset 0 0 0 1px var(--salle-accent-moyen), 0 0 14px -2px var(--salle-accent-lueur);
+  transition: width 900ms cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.theme-dark .salle .salle-niveau-plein, .salle .salle-heros .salle-niveau-plein { box-shadow: 0 0 14px -2px var(--salle-accent-lueur); }
+
+/* ── Transitions entre écrans (View Transitions, iOS 18) : un fondu court, rien si on demande moins de mouvement ── */
+::view-transition-old(root), ::view-transition-new(root) { animation-duration: 180ms; }
+/* L'apparition d'une carte, un fondu court qui monte de 6 px (classe salle-apparait, ou les cartes de l'accueil). */
+@keyframes salle-apparait { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.salle-apparait { animation: salle-apparait var(--salle-doux) ease-out both; }
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-old(root), ::view-transition-new(root) { animation: none; }
+  .salle-apparait { animation: none; }
+}
+
+/* ── Partagé par l'accueil et « Ta séance d'aujourd'hui » (62-avant.js), et les ronds de la semaine (bilan, progrès) ── */
+.salle-meta { margin: var(--size-2-1, 2px) 0 var(--size-4-2, 8px); color: var(--salle-texte-doux); font-size: var(--font-ui-medium, 15px); font-weight: 600; }
+.salle-raison { margin: var(--size-2-2, 4px) 0 var(--size-4-2, 8px); color: var(--salle-texte); }
+.salle-dose { margin: 6px 0; padding: 8px 12px; border-radius: 12px; background: var(--salle-accent-doux); font-size: var(--font-ui-small, 13px); font-weight: 550; color: var(--salle-texte); }
+.salle .salle-dose.salle-a-ic { display: flex; align-items: flex-start; gap: var(--size-4-2, 8px); }
+.salle-dose .salle-ic { --icon-size: var(--icon-xs, 14px); color: var(--salle-accent); margin-top: 2px; }
+.salle-ronds { display: flex; align-items: center; gap: var(--size-4-1, 4px); margin-top: var(--size-4-1, 4px); font-family: var(--salle-chiffres); font-weight: 750; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.salle-rond { width: 14px; height: 14px; border-radius: 50%; border: 2px solid var(--salle-accent); display: inline-block; flex: none; }
+.salle-rond.salle-plein { background: var(--salle-accent-fond); border-color: var(--salle-accent); }
+.salle-ronds .salle-rond + .salle-nombre { margin-left: var(--size-2-2, 4px); }
+
+/* ════════════════ Les autres écrans ════════════════ */
+
+/* ── Ce qui revient sur tous les écrans ── */
+/* Le titre d'une carte : très gras et serré ; avec une icône, elle va dans une petite pastille lime douce. */
+.salle .salle-carte strong.salle-titre-carte { display: block; min-width: 0; font-family: var(--salle-titre); font-size: 17px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.25; overflow-wrap: anywhere; }
+.salle .salle-carte strong.salle-titre-carte.salle-a-ic { display: flex; align-items: center; gap: 10px; }
+/* Un titre de carte et sa pastille sur une ligne : si elle ne tient pas (375 px), la pastille passe dessous ; le titre ne
+   se coupe jamais au milieu d'un mot (« Régulari-té »). */
+.salle .salle-carte > .salle-ligne.salle-entre:first-child { flex-wrap: wrap; row-gap: 6px; }
+.salle .salle-carte > .salle-ligne.salle-entre:first-child > strong.salle-titre-carte { overflow-wrap: normal; white-space: nowrap; }
+.salle .salle-carte strong.salle-titre-carte > .salle-ic { width: 30px; height: 30px; border-radius: var(--salle-rayon-s); background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: 16px; }
+/* Le titre à gauche, la pastille (ou le badge) à droite : un titre long passe sur 2 lignes, la pastille reste à sa place. */
+.salle .salle-carte > .salle-ligne.salle-entre:first-child { gap: 10px; align-items: center; }
+/* Un chiffre d'en-tête (« 3 sur 5 », « 2 semaines de suite », une date) : une pastille. Accent : un progrès ; sinon neutre. */
+.salle .salle-pastille { display: inline-flex; align-items: center; flex: none; max-width: 100%; padding: 4px 11px; border-radius: 999px; background: var(--salle-carte-2); color: var(--salle-texte-doux); font-family: var(--salle-chiffres); font-size: 13px; font-weight: 750; font-variant-numeric: tabular-nums; line-height: 1.3; }
+.salle .salle-pastille-accent { background: var(--salle-accent-doux); color: var(--salle-accent); font-weight: 800; }
+/* Un titre de section entre les cartes (« Exercice par exercice ») : en petites capitales. */
+.salle .salle-section { margin: 24px 4px 10px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--salle-texte-doux); }
+/* Un grand bouton posé sur le fond de l'écran (pas dans une carte) : l'allure d'une carte, sinon il se perd en thème clair. */
+.salle .salle-bouton-carte:not(.salle-principal) { background: var(--salle-carte); border-color: var(--salle-carte-bord); box-shadow: var(--salle-ombre); }
+.salle .salle-bouton-carte .salle-ic { color: var(--salle-accent); }
+.salle .salle-choix-centre { justify-content: center; }
+
+/* ── Animations des exercices : 2 photos qui alternent, petites ── */
+.salle-anim { margin: var(--size-4-2, 8px) auto var(--size-2-3, 6px); max-width: 220px; cursor: pointer; }
+.salle-anim-mini { flex: none; width: 100px; max-width: 100px; margin: var(--size-2-1, 2px) 0 0; }
+.salle .salle-anim-cadre { position: relative; display: block; width: 100%; height: auto; padding: 0; aspect-ratio: 3 / 2; border-radius: 14px; overflow: hidden; background: var(--salle-carte-2); border: none; box-shadow: none; cursor: pointer; }
+.salle-anim-cadre img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.salle-anim-2 { animation: salle-alterne 2.4s ease-in-out infinite; }
+@keyframes salle-alterne { 0%, 35% { opacity: 0; } 50%, 85% { opacity: 1; } 100% { opacity: 0; } }
+.salle-anim-loupe { position: absolute; right: 6px; bottom: 6px; z-index: 1; display: inline-flex; padding: 4px; border-radius: 8px; background: color-mix(in srgb, var(--background-primary) 82%, transparent); color: var(--text-normal); font-size: var(--font-ui-smaller, 12px); line-height: 1; pointer-events: none; }
+.salle-anim-loupe .salle-ic { --icon-size: var(--icon-xs, 14px); }
+.salle-anim-cle { margin-top: 8px; font-size: var(--font-ui-small, 13px); font-weight: 650; text-align: center; color: var(--text-normal); }
+.salle-exo > .salle-anim-cle { text-align: left; }
+/* L'animation en grand, par-dessus l'écran (hors de .salle, posée sur body : seulement les variables d'Obsidian) */
+.salle-zoom { position: fixed; inset: 0; z-index: 9999; background: color-mix(in srgb, var(--background-primary) 94%, transparent); display: flex; align-items: center; justify-content: center; padding: var(--size-4-4, 16px); padding-bottom: calc(var(--size-4-4, 16px) + env(safe-area-inset-bottom, 0px)); cursor: pointer; }
+.salle-zoom-boite { width: 100%; max-width: 560px; color: var(--text-normal); text-align: center; display: flex; flex-direction: column; gap: var(--size-4-3, 12px); font-size: var(--font-ui-medium, 15px); }
+.salle-zoom-boite > strong { font-size: 20px; font-weight: 800; letter-spacing: -0.015em; }
+.salle-zoom .salle-anim-cadre { position: relative; width: 100%; aspect-ratio: 3 / 2; border-radius: 18px; overflow: hidden; background: var(--background-primary); border: 1px solid var(--background-modifier-border); }
+.salle-zoom .salle-anim-cadre img { object-fit: contain; }
+.salle-zoom .salle-petit { color: var(--text-muted); font-size: var(--font-ui-small, 13px); }
+
+/* ── Selon l'appareil ── */
+/* L'image de l'exercice reste sur le départ. */
+@media (prefers-reduced-motion: reduce) {
+  .salle .salle-anim-2, .salle-zoom .salle-anim-2 { animation: none; opacity: 0; }
+}
+
+/* 2.38.13 (demande : la séance apparaît comme le centre de notifications d'Apple, avec un flou derrière, comme le Liquid
+   Glass) : en y entrant, la séance descend du haut par-dessus l'écran d'avant, qui se floute et s'assombrit ; en la
+   quittant, elle remonte et l'écran d'en dessous redevient net. Les autres changements d'écran : le fondu habituel. */
+html.salle-vt-descend::view-transition-old(root), html.salle-vt-descend::view-transition-new(root),
+html.salle-vt-remonte::view-transition-old(root), html.salle-vt-remonte::view-transition-new(root) { mix-blend-mode: normal; opacity: 1; }
+html.salle-vt-descend::view-transition-old(root) { animation: 440ms ease both salle-vt-flou; z-index: 1; }
+html.salle-vt-descend::view-transition-new(root) { animation: 440ms cubic-bezier(0.2, 0.9, 0.25, 1) both salle-vt-descend; z-index: 2; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55); }
+html.salle-vt-remonte::view-transition-old(root) { animation: 380ms cubic-bezier(0.4, 0, 0.7, 0.2) both salle-vt-remonte; z-index: 2; box-shadow: 0 24px 60px rgba(0, 0, 0, 0.55); }
+html.salle-vt-remonte::view-transition-new(root) { animation: 380ms ease both salle-vt-net; z-index: 1; }
+@keyframes salle-vt-descend { from { transform: translateY(-100%); } to { transform: translateY(0); } }
+@keyframes salle-vt-remonte { from { transform: translateY(0); } to { transform: translateY(-100%); } }
+@keyframes salle-vt-flou { from { filter: none; } to { filter: blur(20px) saturate(1.5) brightness(0.55); } }
+@keyframes salle-vt-net { from { filter: blur(20px) saturate(1.5) brightness(0.55); } to { filter: none; } }
+
+/* 2.38.83 : la vidéo du geste lue dans l'app (lecteurVideo, 50-ui.js) : le cadre à la forme de l'image (aspect-ratio posé par
+   le code), le lecteur le remplit ; une vidéo haute (9:16) ne dépasse pas 62 % de l'écran ; « Ouvrir dans YouTube » dessous.
+   Sans « .salle » devant : le même lecteur sert dans la vidéo en grand (.salle-zoom, posée sur body). */
+.salle-video-boite { display: flex; flex-direction: column; align-items: center; gap: 8px; margin: 10px 0; width: 100%; }
+.salle-video-lecteur { position: relative; width: 100%; max-width: 560px; border-radius: 14px; overflow: hidden; background: #000; }
+.salle-video-lecteur.salle-video-haute { width: auto; height: min(62vh, 620px); max-width: 100%; }
+.salle-video-lecteur iframe { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+.salle-video-lecteur > :not(iframe) { margin: 0; }
+.salle-video-secours, .salle-video-son { font-size: var(--font-ui-small, 13px); }
+/* 2.38.84 : la vignette de la vidéo à la place des 2 photos : l'image de la vidéo, ▶ au milieu ; un toucher la lit en grand. */
+.salle-anim-cadre .salle-anim-vignette { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.salle-anim-cadre .salle-vignette-carree { transform: scale(1.34); }
+.salle-anim-cadre .salle-vignette-haute { transform: scale(2.4); object-position: center 40%; }
+.salle-anim-lecture { position: absolute; left: 50%; top: 50%; z-index: 1; display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; margin: -20px 0 0 -20px; border-radius: 50%; background: rgba(0, 0, 0, .62); color: #fff; }
+.salle-anim-lecture .salle-ic { --icon-size: 22px; }
+.salle-anim-mini .salle-anim-lecture { width: 30px; height: 30px; margin: -15px 0 0 -15px; }
+.salle-anim-mini .salle-anim-lecture .salle-ic { --icon-size: 16px; }
+.salle-zoom-video .salle-zoom-boite { align-items: center; }
+.salle-zoom-video .salle-zoom-fermer { align-self: center; }
+/* 2.38.87 : sans le son, une vitre sur la vidéo garde les touchers (un toucher rallumait le son de YouTube) ; la vignette
+   avant le toucher (aide, guide) ; « Avec le son » et « Ouvrir dans YouTube » côte à côte, dessous. */
+.salle-video-vitre { position: absolute; inset: 0; z-index: 2; background: transparent; }
+.salle-video-attente { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; background: #000; cursor: pointer; }
+.salle-video-attente img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.salle-video-boutons { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px 18px; }
+

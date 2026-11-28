@@ -1,0 +1,52 @@
+/* Avant de commencer (le bilan), « Pour te lancer », « Ta séance d'aujourd'hui » (src/62-avant.js). */
+
+/* ── Avant de commencer : le bilan, une question par bloc, les réponses en pastilles ── */
+.salle .salle-bilan { padding-top: 14px; }
+.salle .salle-bilan .salle-prerempli { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 4px; padding: 10px 12px; border-radius: 12px; background: var(--salle-carte-2); color: var(--salle-texte-doux); line-height: 1.4; }
+.salle .salle-bilan .salle-prerempli .salle-ic { --icon-size: 15px; color: var(--salle-accent); margin-top: 1px; }
+.salle-bilan .salle-question { display: block; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--salle-bord); font-family: var(--salle-titre); font-size: 16px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.25; }
+.salle-bilan .salle-question:first-child { margin-top: 4px; padding-top: 0; border-top: none; }
+.salle-bilan > .salle-prerempli + .salle-question { margin-top: 14px; padding-top: 0; border-top: none; }
+.salle-bilan .salle-choix { gap: 8px; margin: 10px 0 2px; }
+.salle-bilan .salle-choix > .salle-bouton { flex: 1 1 auto; }
+.salle-bilan > div.salle-petit { margin: 12px 0 0; font-weight: 600; }
+.salle-bilan > .salle-mini { width: 100%; margin-top: 8px; }
+
+/* ── « Pour te lancer » (L.boostAvant), juste avant « Commencer » : au plus 3 lignes, chacune avec son icône dans une pastille
+   ronde. Progrès, semaine : flèche ou calendrier sur du lime doux ; première fois : gris. ── */
+.salle-boost { margin: 18px 0 2px; padding: 14px 14px 12px; border-radius: 16px; background: var(--salle-carte-2); }
+.salle .salle-boost-titre { display: block; margin: 0 0 2px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--salle-texte-doux); }
+.salle-boost-ligne { margin: 10px 0 0; font-size: 14px; font-weight: 600; line-height: 1.35; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; color: var(--salle-texte); }
+.salle .salle-boost-ligne.salle-a-ic { display: flex; align-items: center; gap: 10px; }
+.salle-boost-ligne .salle-ic { width: 30px; height: 30px; border-radius: 50%; --icon-size: 15px; background: var(--salle-accent-doux); color: var(--salle-accent); }
+.salle-boost-depart, .salle-boost-calme { color: var(--salle-texte-doux); font-weight: 500; }
+.salle-boost-depart .salle-ic { background: var(--salle-carte); color: var(--salle-texte-doux); }
+
+/* ── Ta séance d'aujourd'hui : la séance en carte héros (61-accueil.css la dessine), puis la liste et « Commencer » ── */
+.salle .salle-heros-resume { padding-bottom: 16px; }
+.salle .salle-heros-resume .salle-heros-titre { margin-top: 2px; }
+.salle .salle-heros-resume > .salle-resume-bilan { margin: 0 0 10px; font-size: 13px; line-height: 1.4; }
+.salle .salle-resume-liste { padding-top: 6px; }
+.salle .salle-resume-liste > .salle-grand { margin-top: 16px; }
+.salle .salle-resume-liste > .salle-choix { margin-top: 10px; }
+/* La liste : un rond numéroté (chiffres arrondis) par exercice, le nom en gras, les détails dessous. */
+.salle .salle-liste-seance { counter-reset: none; margin: 0; }
+.salle .salle-liste-seance > li { counter-increment: none; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--salle-bord); line-height: 1.3; }
+.salle .salle-liste-seance > li:last-child { border-bottom: none; }
+.salle .salle-liste-seance > li::before { content: none; }
+.salle-li-exo { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.salle-li-num { flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--salle-accent-doux); color: var(--salle-accent); font-size: 14px; font-weight: 800; display: flex; align-items: center; justify-content: center; }
+.salle .salle-li-num.salle-nombre { font-weight: 800; }
+.salle-li-texte { display: flex; flex-direction: column; gap: 2px; min-width: 0; overflow-wrap: anywhere; }
+.salle-li-texte > span:first-child { font-size: 15px; font-weight: 600; }
+.salle-li-texte .salle-petit { font-size: 12.5px; font-weight: 550; }
+.salle .salle-liste-seance > li > .salle-ic { width: 30px; height: 30px; border-radius: 50%; --icon-size: 15px; }
+.salle .salle-liste-seance > li.salle-li-echauffement > .salle-ic { background: var(--salle-approche-doux); color: var(--salle-approche); }
+.salle .salle-liste-seance > li.salle-li-cardio > .salle-ic { background: color-mix(in srgb, var(--salle-t-bleu) 15%, transparent); color: var(--salle-t-bleu); }
+.salle .salle-liste-seance > li.salle-li-echauffement, .salle .salle-liste-seance > li.salle-li-cardio { font-weight: 600; }
+/* Une supersérie : les deux exercices dans un bloc lime doux, « Supersérie » en petites capitales. */
+.salle .salle-liste-seance > li.salle-li-superserie { flex-direction: column; align-items: stretch; gap: 10px; margin: 8px 0; padding: 10px 12px 12px; border: none; border-radius: 16px; background: var(--salle-accent-doux); }
+.salle .salle-liste-seance > li.salle-li-superserie + li { border-top: none; }
+.salle .salle-li-titre { display: flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--salle-accent); }
+.salle-li-titre .salle-ic { --icon-size: 13px; color: var(--salle-accent); }
+.salle .salle-li-superserie .salle-li-num { background: var(--salle-carte); }

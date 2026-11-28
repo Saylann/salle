@@ -1,0 +1,134 @@
+/* Le bilan de fin (src/64-bilan.js) : la séance en carte héros, les XP, un palier passé, les records, exercice par exercice. */
+
+/* ── Bilan de fin : la séance et ses trois tuiles en carte héros, les records en or, exercice par exercice ── */
+.salle .salle-heros-bilan { padding-bottom: 16px; }
+.salle .salle-heros-bilan .salle-heros-titre { margin-top: 2px; }
+.salle .salle-heros-bilan > .salle-heros-date { margin: 0 0 4px; font-size: 14px; font-weight: 600; }
+.salle .salle-heros-bilan > p.salle-petit { margin: 8px 0 0; font-size: 13px; }
+.salle-tuiles-bilan { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 16px 0 6px; }
+.salle-tuile-bilan { display: flex; flex-direction: column; align-items: flex-start; gap: 3px; min-width: 0; padding: 12px 10px 11px 12px; border-radius: 16px; background: var(--salle-carte-2); text-align: left; }
+.salle .salle-heros .salle-tuile-bilan { background: var(--salle-verre); border: 1px solid var(--salle-verre-bord); }
+/* Le nom en petit en haut ; le chiffre et l'écart en bas (margin-top: auto) : alignés d'une tuile à l'autre, même si un nom passe sur 2 lignes. */
+.salle .salle-tuile-bilan > .salle-petit { max-width: 100%; font-size: 12px; font-weight: 650; line-height: 1.25; color: var(--salle-texte-doux); overflow-wrap: anywhere; }
+.salle .salle-tuile-valeur { margin-top: auto; padding-top: 4px; font-family: var(--salle-chiffres); font-size: 25px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.1; white-space: nowrap; color: var(--salle-texte); }
+/* La charge totale : jamais en vedette (plus petite, en gris). */
+.salle .salle-tuile-discrete .salle-tuile-valeur { font-size: 16px; line-height: 1.6; color: var(--salle-texte-doux); }
+/* L'écart à la dernière fois : une pastille. En hausse : lime plein (le « + » est écrit) ; pareil ou en baisse : gris, sans flèche. */
+.salle-ecart { display: inline-flex; align-items: center; flex: none; white-space: nowrap; margin-top: 2px; padding: 2px 9px; border-radius: 999px; font-family: var(--salle-chiffres); font-size: 12px; font-weight: 800; line-height: 1.5; font-variant-numeric: tabular-nums; }
+.salle-ecart-plus { background: var(--salle-accent-fond); color: var(--salle-sur-accent); }
+.salle-ecart-egal, .salle-ecart-moins { background: var(--salle-carte-2); color: var(--salle-texte-doux); }
+.salle .salle-heros .salle-ecart-egal, .salle .salle-heros .salle-ecart-moins { background: var(--salle-verre); }
+/* « Bravo ! » : les succès de la séance, un par ligne, l'icône dans une pastille ronde (lime ; le trophée des records en or). */
+.salle .salle-succes { border: none; background: linear-gradient(150deg, var(--salle-accent-doux) 0%, transparent 70%), var(--salle-carte); box-shadow: var(--salle-ombre), inset 0 0 0 1.5px var(--salle-accent-moyen); }
+.salle .salle-succes-titre { display: block; font-family: var(--salle-titre); font-size: 26px; font-weight: 800; letter-spacing: -0.03em; line-height: 1.1; }
+.salle-succes-liste { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.salle .salle-succes-ligne { display: flex; align-items: center; gap: 12px; margin: 0; }
+.salle .salle-succes-ligne > .salle-ic { width: 36px; height: 36px; border-radius: 50%; background: var(--salle-accent-fond); color: var(--salle-sur-accent); --icon-size: 18px; }
+.salle .salle-succes-records > .salle-ic { background: var(--salle-record-fond); color: var(--salle-sur-record); box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--salle-record-fond) 80%, transparent); }
+.salle-succes-texte { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.salle-succes-texte strong { font-size: 17px; font-weight: 750; letter-spacing: -0.01em; }
+.salle-succes-texte .salle-petit { overflow-wrap: anywhere; }
+/* Les records : une carte teintée d'or, le trophée sur une pastille orange pleine ; chaque record : le nom, puis avant → après. */
+.salle .salle-records {
+  border: none;
+  background: linear-gradient(150deg, var(--salle-record-doux) 0%, transparent 70%), var(--salle-carte);
+  box-shadow: var(--salle-ombre), inset 0 0 0 1.5px color-mix(in srgb, var(--salle-record-fond) 50%, transparent);
+}
+.salle .salle-carte.salle-records > strong.salle-titre-carte { font-size: 19px; }
+.salle .salle-carte.salle-records > strong.salle-titre-carte > .salle-ic { width: 34px; height: 34px; border-radius: 50%; background: var(--salle-record-fond); color: var(--salle-sur-record); --icon-size: 17px; box-shadow: 0 6px 14px -6px color-mix(in srgb, var(--salle-record-fond) 80%, transparent); }
+.salle-liste-records { list-style: none; margin: 8px 0 0; padding: 0; }
+.salle-liste-records li { display: flex; flex-direction: column; gap: 2px; padding: 10px 0; border-top: 1px solid color-mix(in srgb, var(--salle-record-fond) 30%, transparent); }
+.salle-liste-records li:first-child { border-top: none; padding-top: 4px; }
+.salle-record-nom { font-size: 15px; font-weight: 700; }
+.salle .salle-liste-records .salle-nombre { font-size: 14px; font-weight: 750; color: var(--salle-record); }
+/* Exercice par exercice : le nom à gauche, l'écart en pastille à droite ; s'il est long, il passe dessous. */
+.salle-bilan-exo { flex-wrap: wrap; align-items: center; gap: 6px 10px; padding: 10px 0; border-bottom: 1px solid var(--salle-bord); }
+.salle-bilan-exo:last-child { border-bottom: none; padding-bottom: 2px; }
+.salle .salle-bilan-exos > .salle-ligne:first-child { margin-bottom: 4px; }
+.salle .salle-bilan-exo-nom { flex: 1 1 11em; min-width: 0; overflow-wrap: anywhere; font-size: 15px; font-weight: 600; }
+.salle-bilan-exo .salle-ecart { flex: 0 1 auto; margin: 0; padding: 3px 10px; white-space: normal; font-family: inherit; font-size: 12.5px; font-weight: 700; line-height: 1.35; }
+.salle-bilan-exo .salle-ecart-plus { background: var(--salle-accent-doux); color: var(--salle-accent); }
+.salle .salle-bilan-exo-nom.salle-a-ic { gap: 8px; }
+.salle-bilan-exo-record .salle-bilan-exo-nom { font-weight: 700; }
+.salle .salle-bilan-exo-record .salle-bilan-exo-nom .salle-ic { width: 24px; height: 24px; border-radius: 50%; background: var(--salle-record-doux); color: var(--salle-record); --icon-size: 13px; }
+/* La suite : la semaine (ronds), la prochaine séance, ce soir. */
+.salle .salle-bilan-suite .salle-ronds { margin: 0; gap: 5px; font-size: 15px; font-weight: 800; }
+.salle .salle-bilan-suite .salle-conseil { margin: 14px 0 10px; }
+.salle .salle-apres { display: flex; align-items: flex-start; gap: 10px; margin: 10px 0 4px; line-height: 1.4; }
+.salle-apres .salle-ic { width: 30px; height: 30px; border-radius: 50%; background: color-mix(in srgb, var(--salle-t-orange) 15%, transparent); color: var(--salle-t-orange); --icon-size: 15px; }
+.salle-ressenti > .salle-bouton { flex: 1 1 0; }
+
+/* ── Bilan de fin : les XP de la séance (L.xpSeance) : « +190 XP » en gros, une ligne par vraie action, la barre du
+   niveau qui avance. Une montée : un bandeau lime « Niveau 2 ! » et le titre, une animation courte au premier dessin
+   seulement (salle-xp-fete), rien si l'appareil demande moins de mouvement. ── */
+.salle .salle-xp-bilan { padding-top: 16px; }
+.salle .salle-xp-monte { box-shadow: var(--salle-ombre), inset 0 0 0 1.5px var(--salle-accent-moyen); }
+.salle-xp-tete { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px 12px; }
+.salle .salle-xp-total { font-family: var(--salle-chiffres); font-size: 40px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.035em; line-height: 1; color: var(--salle-accent); }
+.salle .salle-xp-niveau { font-size: 13px; }
+.salle-xp-lignes { list-style: none; margin: 12px 0 14px; padding: 0; }
+.salle-xp-ligne { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 8px 0; border-top: 1px solid var(--salle-bord); font-size: 15px; line-height: 1.3; }
+.salle-xp-ligne:first-child { border-top: none; padding-top: 2px; }
+.salle-xp-texte { min-width: 0; font-weight: 600; overflow-wrap: anywhere; }
+.salle .salle-xp-gain { flex: none; font-size: 15px; font-weight: 800; letter-spacing: -0.01em; color: var(--salle-accent); white-space: nowrap; }
+.salle .salle-xp-records .salle-xp-gain { color: var(--salle-record); }
+.salle .salle-xp-bilan > .salle-niveau-barre { height: 12px; }
+.salle-niveau-bornes { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 2px 10px; margin-top: 8px; font-size: 12.5px; font-weight: 650; color: var(--salle-texte-doux); }
+/* La montée : un bandeau lime plein, le nouveau numéro dans un carré sombre. */
+.salle .salle-xp-montee {
+  position: relative; overflow: hidden; display: flex; align-items: center; gap: 14px; margin: 0 0 16px; padding: 14px 16px;
+  border-radius: 18px; background: var(--salle-accent-fond); color: var(--salle-sur-accent);
+  box-shadow: 0 14px 30px -14px var(--salle-accent-lueur), 0 1px 0 rgba(255, 255, 255, 0.45) inset;
+}
+.salle .salle-xp-montee-rond {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; width: 52px; height: 52px; border-radius: 16px;
+  background: #10140a; color: #c8f53c; font-size: 28px; font-weight: 800; letter-spacing: -0.03em;
+}
+.salle-xp-montee-texte { display: flex; flex-direction: column; gap: 1px; min-width: 0; }
+.salle .salle-xp-montee-titre { font-family: var(--salle-titre); font-size: 26px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; }
+.salle .salle-xp-montee-sous { font-size: 14px; font-weight: 700; opacity: 0.78; }
+@keyframes salle-xp-pop { 0% { opacity: 0; transform: scale(0.94); } 60% { opacity: 1; transform: scale(1.015); } 100% { opacity: 1; transform: none; } }
+@keyframes salle-xp-rond { 0% { transform: scale(0.5) rotate(-12deg); } 65% { transform: scale(1.1) rotate(3deg); } 100% { transform: none; } }
+@keyframes salle-xp-reflet { from { transform: translateX(-150%) skewX(-18deg); } to { transform: translateX(350%) skewX(-18deg); } }
+.salle-xp-fete .salle-xp-montee { animation: salle-xp-pop 480ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.salle-xp-fete .salle-xp-montee-rond { animation: salle-xp-rond 620ms 120ms cubic-bezier(0.2, 0.9, 0.3, 1.3) both; }
+.salle-xp-fete .salle-xp-montee::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 35%; pointer-events: none;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0), rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0));
+  transform: translateX(-150%) skewX(-18deg); animation: salle-xp-reflet 900ms 380ms ease-out both;
+}
+
+/* ── Bilan de fin : un palier passé (L.palier par séances faites). Plus fort que la montée de niveau : une carte héros
+   avec un halo lime, « 18 séances » en surtitre, « Palier : Régulier ! » en très gros, la phrase des études, le gros bouton
+   « Me mesurer et prendre la photo ». Animée au premier dessin seulement (salle-palier-anime). ── */
+.salle .salle-heros.salle-palier-fete {
+  position: relative; overflow: hidden; padding: 20px 18px 18px;
+  box-shadow: var(--salle-ombre), inset 0 0 0 2px var(--salle-accent-fond), 0 18px 40px -18px var(--salle-accent-lueur);
+}
+.salle .salle-palier-fete::before {
+  content: ""; position: absolute; top: -60px; right: -60px; width: 180px; height: 180px; border-radius: 50%; pointer-events: none;
+  background: radial-gradient(circle, color-mix(in srgb, var(--salle-accent-fond) 38%, transparent) 0%, transparent 70%);
+}
+.salle .salle-palier-surtitre { position: relative; display: block; font-size: 12px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--salle-accent); }
+.salle .salle-palier-titre { position: relative; display: block; margin: 4px 0 0; font-family: var(--salle-titre); font-size: 32px; font-weight: 800; letter-spacing: -0.04em; line-height: 1.05; color: var(--salle-heros-texte); overflow-wrap: anywhere; }
+.salle .salle-palier-phrase { position: relative; margin: 10px 0 0; font-size: 15px; font-weight: 650; line-height: 1.4; color: var(--salle-heros-texte); }
+.salle .salle-palier-quoi { position: relative; margin: 6px 0 14px; color: var(--salle-heros-doux); }
+.salle .salle-palier-fete > .salle-bouton { position: relative; width: 100%; }
+@keyframes salle-palier-pop { 0% { opacity: 0; transform: scale(0.92); } 55% { opacity: 1; transform: scale(1.02); } 100% { opacity: 1; transform: none; } }
+.salle-palier-anime { animation: salle-palier-pop 560ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+.salle-palier-anime .salle-palier-titre { animation: salle-xp-pop 520ms 160ms cubic-bezier(0.2, 0.9, 0.3, 1.2) both; }
+
+/* ── Selon l'appareil ── */
+@media (max-width: 400px) {
+  .salle-tuiles-bilan { gap: 6px; }
+  .salle-tuile-bilan { padding: 11px 8px 10px 10px; }
+  .salle .salle-tuile-valeur { font-size: 22px; }
+  .salle .salle-tuile-discrete .salle-tuile-valeur { font-size: 15px; }
+  .salle .salle-xp-total { font-size: 36px; }
+  .salle .salle-palier-titre { font-size: 28px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .salle-xp-fete .salle-xp-montee, .salle-xp-fete .salle-xp-montee-rond { animation: none; }
+  .salle-xp-fete .salle-xp-montee::after { content: none; animation: none; }
+  .salle-palier-anime, .salle-palier-anime .salle-palier-titre { animation: none; }
+}

@@ -1,0 +1,34 @@
+---
+salle: programme
+---
+# Programme
+
+> [!info] Modifier le programme
+> - **Une ligne = un exercice** : `- Nom · séries × répétitions · repos · pas`. Le plugin relit tout seul.
+> - **ou …** : le remplaçant si la machine est prise. **option** : retiré des séances de 45 min.
+> - **pas** : le cran de l'appareil (une pile de 5 en 5 : `pas 5 kg`). Le plugin ne propose que des charges qui existent.
+> - **disques** : un appareil qu'on charge avec des disques. Le plugin dit quoi mettre de chaque côté.
+> - **priorité** : une série de plus (4 au plus) si ta séance dure 1 h 15 ou plus. 3 exercices par séance au plus.
+> - **Renommer un exercice** : son historique repart de zéro.
+
+## Séance A
+
+- Tirage vertical prise large · 3 × 8-12 · repos 2 min · priorité · pas 5 kg · ou Tractions (poids du corps)
+- Extension triceps au-dessus de la tête à la poulie · 3 × 10-15 · repos 1 min 30 · pas 2,5 kg
+- Tirage horizontal à la poulie · 3 × 8-12 · repos 2 min · priorité · pas 5 kg · ou Rowing à la machine à disques
+- Élévations latérales aux haltères · 4 × 12-20 · repos 1 min 30 · priorité · pas 1 kg
+- Presse à cuisses · 3 × 10-15 · repos 2 min · pas 5 kg
+- Développé incliné à la machine · 3 × 8-12 · repos 2 min · pas 5 kg · ou Développé incliné aux haltères
+- Leg curl assis · 2 × 10-15 · repos 1 min 30 · pas 5 kg · ou Leg curl allongé
+- Curl à la barre en Z · 3 × 10-15 · repos 1 min 30 · pas 2,5 kg · ou Curl aux haltères
+
+## Séance B
+
+- Tirage vertical prise neutre · 4 × 8-12 · repos 2 min · priorité · pas 5 kg · ou Tractions (poids du corps)
+- Extension triceps au-dessus de la tête à la poulie · 3 × 10-15 · repos 1 min 30 · pas 2,5 kg
+- Élévations latérales à la machine · 3 × 12-20 · repos 1 min 30 · pas 5 kg · ou Élévations latérales à la poulie
+- Presse à cuisses · 3 × 10-15 · repos 2 min · pas 5 kg
+- Développé incliné aux haltères · 4 × 8-12 · repos 2 min · priorité · pas 2 kg · banc 30° (2e ou 3e cran) · ou Développé incliné à la machine
+- Curl à la barre en Z · 3 × 10-15 · repos 1 min 30 · pas 2,5 kg · ou Curl aux haltères
+- Élévations latérales aux haltères · 4 × 12-20 · repos 1 min 30 · priorité · pas 1 kg
+- Leg curl assis · 3 × 10-15 · repos 1 min 30 · pas 5 kg · ou Leg curl allongé

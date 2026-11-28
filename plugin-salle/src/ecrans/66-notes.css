@@ -1,0 +1,69 @@
+/* Les séances notées, les notes lues dans l'app, le programme, le guide (src/66-notes.js). */
+
+/* ── Séances notées : le nom en titre, la date en pastille ── */
+.salle .salle-seance-notee > p.salle-petit { margin: 8px 0 0; line-height: 1.45; }
+.salle .salle-seance-notee .salle-choix { margin-top: 12px; }
+
+/* ── Notes lues dans l'app, programme, guide ── */
+/* Une partie qui s'ouvre au toucher (guide, notes) : le titre en gras, le chevron dans un rond. */
+/* Le « ▸ » / « ▾ » du texte reste (lu, et dans les tests) mais se dessine en chevron net : le glyphe est trop petit sur iPhone. */
+.salle .salle-rang[aria-expanded] > span:last-child:not(.salle-ic) { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--salle-carte-2); color: var(--salle-texte-doux); font-size: 0; line-height: 0; }
+.salle .salle-rang[aria-expanded] > span:last-child:not(.salle-ic)::before { content: ""; width: 7px; height: 7px; margin-left: -2px; border-right: 2.25px solid currentColor; border-bottom: 2.25px solid currentColor; transform: rotate(-45deg); }
+.salle .salle-rang[aria-expanded="true"] > span:last-child:not(.salle-ic) { background: var(--salle-accent-doux); color: var(--salle-accent); }
+.salle .salle-rang[aria-expanded="true"] > span:last-child:not(.salle-ic)::before { margin: -4px 0 0; transform: rotate(45deg); }
+.salle .salle-rang > strong { font-size: 15.5px; font-weight: 700; letter-spacing: -0.01em; }
+.salle .salle-fiche { padding: 6px 8px; margin-bottom: 8px; }
+.salle .salle-fiche.salle-fiche-ouverte { padding-bottom: 14px; }
+.salle .salle-fiche > .salle-fiche-champs { margin: 6px 10px 0; }
+.salle .salle-fiche > .salle-anim { margin-top: 10px; }
+.salle-lecture .salle-texte { border-top: none; padding-top: 0; margin-top: var(--size-2-1, 2px); }
+.salle-lecture > .salle-rang + .salle-texte { border-top: 1px solid var(--salle-bord); padding-top: 8px; margin-top: 8px; }
+.salle-carte > .salle-rang:only-child { margin: calc(-1 * var(--size-4-1, 4px)) 0; }
+/* Le programme : une carte par séance, un bloc par exercice, ses repères en pastilles. */
+.salle .salle-prog-seance > h3 { font-size: 24px; letter-spacing: var(--salle-serre); }
+.salle .salle-prog-seance > .salle-petit { margin-bottom: 4px; font-weight: 650; }
+.salle-prog-exo { padding: 12px 0; border-bottom: 1px solid var(--salle-bord); }
+.salle-prog-exo:last-child { border-bottom: none; padding-bottom: var(--size-2-1, 2px); }
+.salle .salle-prog-exo-nom { display: block; font-size: 15px; font-weight: 700; }
+.salle-prog-exo .salle-infos { margin: 8px 0 2px; }
+.salle-prog-exo > .salle-petit { margin-top: 4px; }
+/* 2.33.0 : la petite animation de chaque exercice, dans l'onglet Programme. */
+.salle .salle-prog-exo .salle-anim-prog { width: 132px; max-width: 132px; margin: 8px 0 4px; }
+/* « Manger » : l'objectif de protéines du jour, en gros, au-dessus des aliments. */
+/* La liste de courses : un produit par ligne, une case à cocher ; pris : la case pleine, le produit barré. */
+.salle-courses { display: flex; flex-direction: column; margin-top: 8px; padding-top: 4px; border-top: 1px solid var(--salle-bord); }
+.salle .salle-courses-titre { margin: 14px 0 4px; font-size: 12px; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--salle-accent); }
+.salle .salle-courses-titre strong { font-weight: 800; }
+.salle .salle-courses-note { margin: 12px 0 0; }
+.salle .salle-courses-ligne { display: flex; align-items: center; justify-content: flex-start; gap: 12px; width: 100%; height: auto; min-height: 44px; margin: 0; padding: 6px 2px; background: none; border: none; border-bottom: 1px solid var(--salle-bord); border-radius: 0; box-shadow: none; text-align: left; font: inherit; font-size: 16px; font-weight: 550; color: var(--salle-texte); white-space: normal; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.salle-courses-case { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 24px; height: 24px; border-radius: 7px; border: 2px solid var(--salle-texte-doux); }
+.salle-courses-case .salle-ic { --icon-size: 15px; }
+.salle-courses-pris .salle-courses-case { background: var(--salle-accent-fond); border-color: var(--salle-accent-fond); color: var(--salle-sur-accent); }
+.salle .salle-courses-pris .salle-courses-produit { text-decoration: line-through; color: var(--salle-texte-doux); }
+.salle .salle-courses > .salle-courses-vider { align-self: flex-end; margin: 8px 0 0; }
+.salle .salle-courses > .salle-courses-vider[disabled] { opacity: 0.45; }
+/* Sur l'iPhone, Obsidian centre le contenu d'un bouton et le grise au toucher : ces lignes restent à gauche, sans fond. */
+.salle .salle-courses-ligne:hover, .salle .salle-courses-ligne:focus, .salle .salle-courses-ligne:active,
+.salle .salle-plat:hover, .salle .salle-plat:focus, .salle .salle-plat:active { background: none; box-shadow: none; }
+.salle .salle-courses-produit, .salle .salle-plat-nom { text-align: left; }
+/* Les plats d'un repas : une ligne par plat ; ouvert, sa recette dessous (ingrédients en puces, étapes numérotées). */
+.salle-plats { display: flex; flex-direction: column; margin-top: 8px; padding-top: 4px; border-top: 1px solid var(--salle-bord); }
+.salle .salle-plat { display: flex; align-items: center; justify-content: space-between; gap: 12px; width: 100%; height: auto; min-height: 48px; margin: 0; padding: 8px 2px; background: none; border: none; border-bottom: 1px solid var(--salle-bord); border-radius: 0; box-shadow: none; text-align: left; font: inherit; font-size: 16px; font-weight: 650; color: var(--salle-texte); white-space: normal; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.salle .salle-plat-ouvert { border-bottom-color: transparent; color: var(--salle-accent); }
+.salle-plat-signe { flex: none; color: var(--salle-texte-doux); }
+.salle .salle-plat-recette { padding: 0 2px 10px; border-bottom: 1px solid var(--salle-bord); }
+.salle .salle-plat-recette .salle-texte { border-top: none; margin-top: 0; padding-top: 0; }
+.salle .salle-plat-recette ol { margin-top: 8px; }
+
+/* 2.41.4 : « Manger » : l'idée pour le prochain repas, puis « Toutes les recettes » repliée. */
+.salle .salle-idee-titre { margin: 0 0 6px; font-weight: 650; }
+.salle .salle-recettes-repas { border-top: 1px solid var(--salle-bord); }
+.salle .salle-recettes-repas > .salle-rang strong { font-size: 16px; }
+.salle .salle-recettes-aliments { padding-top: 10px; border-top: 1px solid var(--salle-bord); }
+
+/* ── 2.41.16 : « Comment faire » par muscle : un titre par muscle, ses exercices dessous ── */
+.salle .salle-guide-muscle { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; margin: 22px 4px 8px; }
+.salle .salle-guide-muscle:first-of-type { margin-top: 8px; }
+.salle .salle-guide-muscle h3 { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -0.01em; color: var(--salle-texte); }
+.salle .salle-guide-muscle .salle-petit { color: var(--text-muted); white-space: nowrap; }
+.salle .salle-guide-prog { margin-left: auto; margin-right: 8px; padding: 2px 9px; border-radius: 999px; background: var(--salle-accent-doux); color: var(--salle-accent); font-size: 12px; font-weight: 750; white-space: nowrap; }

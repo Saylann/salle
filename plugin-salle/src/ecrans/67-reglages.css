@@ -1,0 +1,27 @@
+/* Les premières questions et les réglages (src/67-reglages.js). */
+
+/* ── Réglages : deux onglets (Salle, Appli), un sélecteur en pilule en haut ── */
+.salle-onglets { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; padding: 4px; margin: 0 0 14px; border-radius: 999px; background: var(--salle-carte); border: 1px solid var(--salle-carte-bord); box-shadow: var(--salle-ombre); }
+.salle .salle-onglet { width: 100%; border-color: transparent; background: transparent; color: var(--salle-texte-doux); border-radius: 999px; font-size: 15px; font-weight: 700; }
+.salle .salle-onglet .salle-ic { color: inherit; }
+.salle .salle-onglet.salle-principal { background: var(--salle-accent-fond); color: var(--salle-sur-accent); box-shadow: 0 6px 14px -6px var(--salle-accent-lueur); }
+@media (hover: hover) { .salle .salle-onglet:not(.salle-principal):hover { background: var(--salle-carte-2); color: var(--salle-texte); } }
+/* « Semaines sans salle » : le choix d'une semaine à ajouter (la liste du système, sur iPhone). */
+.salle .salle-choix-semaine { display: block; width: 100%; min-height: var(--salle-cible); height: auto; margin: var(--size-4-2, 8px) 0 var(--size-2-2, 4px); padding: 0 14px; font: inherit; font-size: 15px; font-weight: 600; color: var(--salle-texte); background-color: var(--salle-carte-2); border: 1px solid transparent; border-radius: var(--salle-rayon-m); box-shadow: none; }
+.salle-reglage-ligne { min-height: 52px; padding: 6px 0; border-bottom: 1px solid var(--salle-bord); }
+.salle-reglage-ligne:last-of-type { border-bottom: none; }
+.salle-reglage-ligne > span { min-width: 0; overflow-wrap: anywhere; font-weight: 550; }
+.salle-reglage-ligne > .salle-bouton { flex: none; }
+.salle-attention { color: var(--salle-approche); font-weight: 650; }
+
+/* « Ton corps aujourd'hui » (premières questions) : un champ par ligne, le nom au-dessus, l'unité à droite. */
+.salle .salle-corps-champs { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px 12px; margin: 8px 0 12px; }
+.salle .salle-corps-champ { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.salle .salle-corps-champ .salle-champ { width: 100%; min-width: 0; }
+/* Le nombre de séances par semaine, sous les jours cochés (premières questions). */
+.salle .salle-jours-nombre { margin: 10px 0 2px; font-size: 15px; }
+/* Le questionnaire : la salle (3 champs de texte) et ses étages (une rangée de choix par lieu). */
+.salle .salle-salle-champs { display: flex; flex-direction: column; gap: 8px; margin: 8px 0 10px; }
+.salle .salle-champ.salle-champ-texte { width: 100%; height: 46px; padding: 0 12px; font-size: 16px; font-weight: 550; text-align: left; }
+.salle .salle-etages-rang { margin: 10px 0 0; }
+.salle .salle-etages-rang .salle-choix { margin-top: 4px; }

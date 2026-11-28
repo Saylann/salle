@@ -1,0 +1,6 @@
+---
+salle: club
+---
+# Ma salle
+
+- **Le sac** : serviette, gourde, cadenas, chaussures propres.

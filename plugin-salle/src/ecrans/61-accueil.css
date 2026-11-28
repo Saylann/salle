@@ -1,0 +1,239 @@
+/* L'accueil (src/61-accueil.js) : la séance du jour en carte héros (sombre et dégradée, même en thème clair), « Tes progrès »
+   en lignes nettes (une pastille, le nom, le chiffre en gras), les tuiles avec une pastille de couleur, la semaine en une
+   ligne fine. Seulement les variables de 10-base.css. Les classes partagées avec « Ta séance d'aujourd'hui » (.salle-meta,
+   .salle-raison, .salle-dose) sont dans 10-base.css : ici, seulement leur allure dans la carte héros. */
+
+/* ── Les variables de l'accueil : la teinte de la pastille de chaque tuile ── */
+.salle .salle-tuile-guide { --salle-teinte: var(--salle-t-bleu); }
+.salle .salle-tuile-mesures { --salle-teinte: var(--salle-t-violet); }
+.salle .salle-tuile-programme { --salle-teinte: var(--salle-t-lime); }
+.salle .salle-tuile-club { --salle-teinte: var(--salle-t-rose); }
+.salle .salle-tuile-manger { --salle-teinte: var(--salle-t-orange); }
+.salle .salle-tuile-reglages { --salle-teinte: var(--salle-t-gris); }
+
+/* ── En-tête : la date en petit au-dessus, « Salle » en très gros, la marque (l'haltère) dans un carré lime ── */
+/* Une grille : la date seule sur sa ligne (« MERCREDI 18 NOVEMBRE 2026 » ne se coupe pas), puis « Salle » (2.38.58 : plus de bouton « Plein écran »). */
+.salle .salle-entete-accueil { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "date date" "titre bouton"; align-items: center; gap: 4px 12px; margin: 4px 0 14px; }
+.salle .salle-entete-accueil .salle-titre-seance { display: contents; }
+.salle .salle-entete-accueil .salle-titre-seance > h2 { grid-area: titre; }
+.salle .salle-entete-accueil .salle-titre-seance > .salle-petit { grid-area: date; font-size: 12px; font-weight: 750; letter-spacing: 0.07em; text-transform: uppercase; color: var(--salle-texte-doux); }
+.salle .salle-entete-accueil .salle-titre-seance > h2 { font-size: 34px; letter-spacing: -0.04em; line-height: 1; gap: 10px; }
+.salle .salle-entete-accueil h2 .salle-ic { width: 34px; height: 34px; border-radius: 11px; background: var(--salle-accent-fond); color: var(--salle-sur-accent); --icon-size: 19px; }
+
+/* ── La carte du jour : ce qui ne dépend pas du héros (mise en page) ── */
+.salle-decision { font-size: var(--font-ui-small, 13px); font-weight: 650; color: var(--salle-accent); }
+.salle-decision-repos { color: var(--salle-texte-doux); }
+.salle .salle-decision .salle-ic { --icon-size: var(--icon-xs, 14px); }
+.salle-autres { margin-top: var(--size-4-1, 4px); }
+.salle-bon-retour { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: var(--size-4-2, 8px); margin: 0 0 var(--size-4-3, 12px); padding: var(--size-4-2, 8px) var(--size-4-3, 12px); border-radius: 14px; background: var(--salle-accent-doux); }
+.salle .salle-bon-retour-texte { display: flex; align-items: flex-start; gap: var(--size-4-2, 8px); flex: 1 1 14em; min-width: 0; font-weight: 650; }
+.salle-bon-retour-texte .salle-ic { color: var(--salle-accent); }
+
+/* ── La carte héros : la séance du jour (et la séance en cours). Toujours sombre : les variables y prennent leurs valeurs
+   sombres (10-base.css), donc tout ce qui est dedans suit. ── */
+.salle .salle-heros {
+  position: relative; overflow: hidden; isolation: isolate;
+  margin: 0 0 14px; padding: 18px 20px 10px; border-radius: 26px;
+  color: var(--salle-texte); background: var(--salle-heros-fond); border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 22px 40px -22px rgba(12, 18, 4, 0.55), 0 2px 6px rgba(12, 18, 4, 0.10);
+}
+.theme-dark .salle .salle-heros { box-shadow: 0 0 0 1px rgba(200, 245, 60, 0.06), 0 24px 48px -24px rgba(0, 0, 0, 0.9); }
+/* « AUJOURD'HUI » en petit, en lime ; puis le nom de la séance en très gros. */
+.salle .salle-heros .salle-heros-surtitre { margin: 2px 0 2px; font-size: 12px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--salle-accent); }
+.salle .salle-heros .salle-heros-titre { margin: 0 0 4px; font-size: 40px; line-height: 1.02; letter-spacing: -0.045em; color: var(--salle-heros-texte); }
+.salle .salle-heros .salle-meta { margin: 0 0 10px; color: var(--salle-heros-doux); font-size: 15px; font-weight: 650; letter-spacing: -0.005em; }
+.salle .salle-heros > p.salle-nombre { color: var(--salle-heros-doux); font-size: 15px; font-weight: 650; margin: 0 0 4px; }
+.salle .salle-heros .salle-raison { margin: 0 0 8px; color: var(--salle-heros-doux); font-size: 14px; line-height: 1.45; }
+.salle .salle-heros > .salle-petit { color: var(--salle-heros-doux); }
+/* Ce qui change aujourd'hui : des lignes « verre dépoli », une par chose. */
+.salle .salle-heros .salle-dose { margin: 6px 0; padding: 8px 12px; border-radius: 12px; background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.07); color: var(--salle-texte); font-size: 13px; font-weight: 550; }
+.salle .salle-heros .salle-dose .salle-ic { color: var(--salle-accent); }
+.salle .salle-heros .salle-decision { display: flex; align-items: flex-start; gap: 6px; margin: 0 0 10px; font-size: 13px; font-weight: 700; color: var(--salle-accent); }
+.salle .salle-heros .salle-decision .salle-ic { --icon-size: 14px; margin-top: 2px; }
+.salle .salle-heros .salle-decision-repos { color: var(--salle-heros-doux); }
+.salle .salle-heros .salle-mini { background: rgba(255, 255, 255, 0.1); color: var(--salle-texte); }
+.salle .salle-heros .salle-mini .salle-ic { color: var(--salle-accent); }
+/* « Bon retour » : en tête, sans reproche, sur un fond lime doux. */
+.salle .salle-heros .salle-bon-retour { margin: 0 0 14px; padding: 10px 10px 10px 14px; border-radius: 16px; background: var(--salle-accent-doux); border: 1px solid rgba(200, 245, 60, 0.22); }
+.salle .salle-heros .salle-bon-retour-texte { color: var(--salle-texte); font-size: 14px; }
+.salle .salle-heros .salle-bon-retour-texte .salle-ic { color: var(--salle-accent); margin-top: 2px; }
+/* « Commencer » : gros, lime, arrondi, avec une lueur. « Y aller quand même » (jour de repos) : le même, sans le lime. */
+.salle .salle-heros .salle-grand { min-height: 60px; margin: 14px 0 0; border-radius: 18px; font-size: 19px; }
+.salle .salle-heros .salle-grand:not(.salle-principal) { background: rgba(255, 255, 255, 0.1); color: var(--salle-texte); border-color: rgba(255, 255, 255, 0.12); }
+.salle .salle-heros .salle-grand:not(.salle-principal) .salle-ic { color: var(--salle-accent); }
+.salle .salle-heros .salle-principal.salle-grand { box-shadow: 0 12px 28px -10px rgba(200, 245, 60, 0.55), 0 1px 0 rgba(255, 255, 255, 0.45) inset; }
+@media (hover: hover) { .salle .salle-heros .salle-mini:hover, .salle .salle-heros .salle-grand:not(.salle-principal):hover { background: rgba(255, 255, 255, 0.16); } }
+/* « Changer de séance » : un lien discret, centré sous « Commencer » (il garde ses 44 px pour le doigt). */
+.salle .salle-heros > .salle-autres { justify-content: center; margin: 4px 0 2px; }
+.salle .salle-heros .salle-lien { color: var(--salle-heros-doux); }
+@media (hover: hover) { .salle .salle-heros .salle-lien:hover { color: var(--salle-heros-texte); } }
+/* La séance en cours : « Terminer et enregistrer » (ou « Annuler ») sous « Reprendre », centré. */
+.salle .salle-en-cours { padding-bottom: 16px; text-align: center; }
+.salle .salle-en-cours .salle-heros-surtitre, .salle .salle-en-cours .salle-heros-titre, .salle .salle-en-cours > p.salle-nombre { text-align: left; }
+.salle .salle-en-cours > .salle-mini { margin-top: 6px; }
+
+/* La proposition de semaine légère : un avis, d'un toucher (au-dessus de la carte héros). */
+.salle .salle-proposition { border: 1px dashed var(--salle-accent-moyen); background: linear-gradient(0deg, var(--salle-accent-doux), var(--salle-accent-doux)), var(--salle-carte); box-shadow: none; }
+.salle-proposition p { margin-top: var(--size-4-1, 4px); }
+
+/* ── « Tes progrès », juste sous la carte héros. Toute la carte est un bouton (vers Progrès) : on lui rend
+   l'allure d'une carte. Au plus 4 lignes : une pastille, le nom à gauche, le chiffre en gras à droite (dessous s'il est long). ── */
+.salle .salle-progres-accueil, .salle .salle-manger-accueil {
+  display: block; width: 100%; height: auto; margin: 0 0 12px; padding: 14px 16px 8px;
+  text-align: left; font: inherit; color: var(--salle-texte); white-space: normal; cursor: pointer;
+  background: var(--salle-carte); border: 1px solid var(--salle-carte-bord); border-radius: var(--salle-rayon); box-shadow: var(--salle-ombre);
+  -webkit-tap-highlight-color: transparent; transition: transform var(--salle-vite) ease, background-color 0.15s ease;
+}
+.salle .salle-progres-accueil:active, .salle .salle-manger-accueil:active { transform: scale(0.98); }
+@media (hover: hover) { .salle .salle-progres-accueil:hover, .salle .salle-manger-accueil:hover { background: color-mix(in srgb, var(--salle-texte) 3%, var(--salle-carte)); } }
+.salle-progres-tete { display: flex; align-items: center; justify-content: space-between; gap: var(--size-4-2, 8px); }
+.salle .salle-progres-tete > strong { display: flex; align-items: center; gap: 10px; font-family: var(--salle-titre); font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.salle .salle-progres-tete > strong > .salle-ic { width: 30px; height: 30px; border-radius: 10px; background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: 17px; }
+.salle-progres-ouvrir { display: inline-flex; align-items: center; justify-content: center; flex: none; width: 30px; height: 30px; border-radius: 50%; background: var(--salle-carte-2); color: var(--salle-texte-doux); }
+.salle-progres-ouvrir .salle-ic { --icon-size: 16px; }
+.salle-progres-lignes { display: flex; flex-direction: column; margin-top: 6px; }
+/* « Manger », sous la semaine : même carte-bouton que « Tes progrès », l'icône sur sa teinte orange, 2 lignes courtes. */
+.salle .salle-manger-accueil { padding-bottom: 14px; }
+.salle .salle-manger-accueil .salle-progres-tete > strong > .salle-ic { background: rgba(255, 138, 76, 0.16); color: #ff8a4c; }
+/* 2.39.1 : « 📷 kcal » de « Calories d'un plat », à droite de la ligne du titre, à la place du ›. 2.39.7 : dans la ligne du
+   titre (plus de position absolue : sur l'iPhone, la pastille tombait sous la carte). Le champ invisible de l'appareil photo
+   la couvre en entier (.salle-photo-champ, en position absolue dans la pastille). */
+.salle .salle-manger-photo {
+  position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center;
+  gap: 6px; height: 40px; min-height: 0; margin: -6px -4px -6px 0; padding: 0 14px 0 12px; border: none; border-radius: 20px; overflow: hidden;
+  font: inherit; font-size: 15px; font-weight: 750;
+  background: rgba(255, 138, 76, 0.16); color: #ff8a4c; box-shadow: none; cursor: pointer;
+  -webkit-tap-highlight-color: transparent; transition: transform var(--salle-vite) ease;
+}
+.salle .salle-manger-photo:active { transform: scale(0.92); }
+.salle .salle-manger-photo .salle-ic { --icon-size: 19px; }
+.salle .salle-progres-ligne { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 7px 0; border-top: 1px solid var(--salle-bord); font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; }
+.salle .salle-progres-ligne:first-child { border-top: none; }
+.salle .salle-progres-ligne > .salle-ic { width: 28px; height: 28px; border-radius: 9px; background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: 16px; }
+.salle .salle-progres-records > .salle-ic { background: var(--salle-record-doux); color: var(--salle-record); }
+.salle .salle-progres-mesure > .salle-ic { background: color-mix(in srgb, var(--salle-t-violet) 15%, transparent); color: var(--salle-t-violet); }
+.salle-progres-texte { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 1px; flex: 1 1 auto; min-width: 0; }
+.salle-progres-nom { flex: 1 1 auto; min-width: 0; font-weight: 600; color: var(--salle-texte); }
+.salle-progres-deux { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }   /* le « : » reste lu, pas vu */
+.salle-progres-valeur { margin-left: auto; font-family: var(--salle-chiffres); font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; color: var(--salle-texte); white-space: nowrap; }
+.salle-progres-texte > .salle-progres-valeur:only-child { margin-left: 0; }
+.salle .salle-progres-records .salle-progres-valeur { color: var(--salle-record); }
+/* Le niveau en tête de « Tes progrès » (L.niveau) : un creux arrondi, « Niveau 1 · Débutant » en gras, « encore
+   250 XP » à droite, la barre lime, puis la phrase de L.conseilNiveau en petit. Environ 85 px : « Tes progrès » reste
+   visible sans défiler sur un iPhone 375 × 812. */
+.salle .salle-niveau-accueil { display: block; margin: 10px 0 2px; padding: 9px 12px 10px; border-radius: 16px; background: var(--salle-carte-2); }
+.salle-niveau-haut { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 2px 10px; margin: 0 0 9px; min-width: 0; }
+.salle-niveau-nom { flex: 1 1 auto; min-width: 0; font-family: var(--salle-titre); font-size: 15px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; color: var(--salle-texte); overflow-wrap: anywhere; }
+.salle .salle-niveau-reste { flex: none; font-size: 13px; font-weight: 750; color: var(--salle-texte-doux); white-space: nowrap; }
+.salle-niveau-accueil > .salle-niveau-barre { height: 8px; background: color-mix(in srgb, var(--salle-texte) 11%, transparent); }
+.salle-niveau-phrase { display: block; margin-top: 7px; font-size: 12.5px; font-weight: 550; line-height: 1.35; color: var(--salle-texte-doux); }
+.salle .salle-niveau-accueil + .salle-progres-lignes { margin-top: 4px; }
+/* « Prochain palier : Régulier dans 16 séances », en petit, sous la phrase (le palier vient des séances faites). */
+/* L'échelle des paliers sous le niveau (echellePaliers en <span>) : les couleurs de la carte, pas celles du héros. */
+.salle .salle-niveau-accueil .salle-echelle { margin-top: 12px; }
+.salle .salle-niveau-accueil .salle-echelle-palier + .salle-echelle-palier::before { background: color-mix(in srgb, var(--salle-texte) 14%, transparent); }
+.salle .salle-niveau-accueil .salle-echelle-passe + .salle-echelle-palier::before, .salle .salle-niveau-accueil .salle-echelle-palier.salle-echelle-ici::before { background: var(--salle-accent-fond); }
+.salle .salle-niveau-accueil .salle-echelle-point { border-color: color-mix(in srgb, var(--salle-texte) 22%, transparent); }
+.salle .salle-niveau-accueil .salle-echelle-ici .salle-echelle-point { border-color: var(--salle-accent-fond); }
+.salle .salle-niveau-accueil .salle-echelle-titre { color: var(--salle-texte-doux); }
+.salle .salle-niveau-accueil .salle-echelle-ici .salle-echelle-titre { color: var(--salle-texte); }
+
+/* Rien encore (aucune séance, une seule) : une phrase en gris, sans pastille. */
+.salle .salle-progres-vide .salle-progres-ligne { padding: 6px 0 8px; }
+.salle .salle-progres-vide .salle-progres-valeur { font-family: inherit; font-size: 14px; font-weight: 500; color: var(--salle-texte-doux); white-space: normal; }
+
+/* ── Les tuiles (10-base.css dessine la tuile ; leur teinte : en tête de ce fichier) ── */
+/* 7 tuiles ; sur iPhone, en 2 colonnes, la dernière (Réglages) prend toute la largeur, plus basse. */
+@media (max-width: 559px) { .salle .salle-tuiles > .salle-tuile:last-child:nth-child(odd) { grid-column: 1 / -1; min-height: 56px; } }
+
+/* L'apparition des cartes à l'ouverture : la classe salle-apparait de 10-base.css, posée par ecranAccueil (rien si on demande
+   moins de mouvement). */
+@media (prefers-reduced-motion: reduce) { .salle .salle-progres-accueil:active, .salle .salle-manger-accueil:active { transform: none; } }
+
+/* ── La semaine en une ligne fine ──
+   Comme Motra ou Gymkee : un repère par jour (coche dans un rond lime = fait, lettre A/B cerclée = prévu, petit point = repos),
+   aujourd'hui marqué d'un trait sous le jour et sa lettre en couleur, « 2 sur 3 » à droite en chiffres arrondis. Environ
+   50 px de haut. Toute la semaine est ici (.salle-semaine, .salle-jour…). */
+.salle-semaine-fine {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 4px 14px; margin: 0 0 12px; padding: 10px 16px 8px;
+  border-radius: 18px; background: var(--salle-carte); border: 1px solid var(--salle-carte-bord); box-shadow: var(--salle-ombre);
+}
+.salle-semaine { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 2px; margin: 0; }
+.salle-semaine-fine .salle-semaine { flex: 1 1 0; min-width: 0; }
+.salle-jour { position: relative; display: flex; flex-direction: column; align-items: center; gap: 4px; padding-bottom: 7px; min-width: 0; }
+.salle-jour-nom { font-size: 10px; line-height: 1; font-weight: 750; letter-spacing: 0.04em; color: var(--salle-texte-doux); }
+.salle-jour-marque { display: flex; align-items: center; justify-content: center; width: 26px; height: 26px; max-width: 100%; border-radius: 50%; font-family: var(--salle-chiffres); font-weight: 800; font-size: 11px; }
+.salle-jour-marque .salle-ic { --icon-size: 14px; }
+.salle-jour-marque .salle-ic svg { stroke-width: 3; }
+.salle-jour-date { display: none; }
+/* Fait : un rond lime plein, la coche presque noire (la coche dit « fait », pas seulement la couleur). */
+.salle-jour-fait .salle-jour-marque { background: var(--salle-accent-fond); color: var(--salle-sur-accent); box-shadow: 0 3px 8px -3px var(--salle-accent-lueur); }
+.salle-jour-fait .salle-jour-marque .salle-ic { --icon-size: 20px; }
+.salle-jour-fait .salle-jour-marque svg circle { display: none; }   /* l'icône « fait » (circle-check) dans le rond : la coche seule */
+/* Prévu : la lettre de la séance dans un cercle fin. */
+.salle-jour-prevu .salle-jour-marque { border: 1.5px solid var(--salle-accent); color: var(--salle-accent); background: transparent; }
+/* Repos : un petit point. */
+.salle-jour-repos .salle-jour-marque::after { content: ''; width: 4px; height: 4px; border-radius: 50%; background: var(--salle-pale); opacity: 0.7; }
+/* Aujourd'hui : un trait court sous le jour, et sa lettre en couleur. */
+.salle-jour-auj::after { content: ''; position: absolute; bottom: 0; left: 34%; right: 34%; height: 3px; border-radius: 2px; background: var(--salle-accent); }
+.salle-jour-auj .salle-jour-nom { color: var(--salle-accent); }
+/* « 2 sur 3 » */
+.salle-semaine-fine .salle-ronds { flex: none; margin: 0 0 4px; color: var(--salle-texte); font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+/* Une semaine sans salle prévue : une ligne discrète, sans bouton (elle se prévoit dans Réglages → Salle). */
+.salle-semaine-fine .salle-pause-ligne { flex-basis: 100%; margin: 0 0 4px; }
+
+/* La pesée de la semaine : une ligne fine, le bouton « Peser » à droite. */
+.salle .salle-ligne-pesee { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 10px; padding-bottom: 10px; }
+.salle .salle-ligne-pesee > p, .salle .salle-ligne-pesee > .salle-court { margin: 0; flex: 1; }
+
+/* ── Le verre de la carte héros (toujours sombre) : un fond blanc très transparent pour les tuiles et les lignes dedans ── */
+.salle .salle-heros { --salle-verre: rgba(255, 255, 255, 0.06); --salle-verre-bord: rgba(255, 255, 255, 0.08); }
+/* 2.38.66 (demande : un bouton en haut à gauche pour le volet des fichiers) : un rond à gauche de la date, comme celui
+   d'Obsidian ; « Salle » en dessous. */
+.salle .salle-entete-accueil.salle-avec-volet { grid-template-columns: auto minmax(0, 1fr); grid-template-areas: "volet date" "titre titre"; row-gap: 10px; }
+.salle .salle-entete-accueil .salle-bouton-volet { grid-area: volet; display: inline-flex; align-items: center; justify-content: center; width: 44px; height: 44px; min-height: 44px; margin: 0; padding: 0; border-radius: 50%; border: none; background: var(--salle-carte); box-shadow: var(--salle-ombre); color: var(--salle-texte); cursor: pointer; }
+.salle .salle-bouton-volet .salle-ic { --icon-size: 20px; }
+.salle .salle-bouton-volet.salle-a-ic .salle-repli { display: none; }
+
+/* 2.38.85 : à côté de la date, « · À jour » (vert) ou « · Mettre à jour » (orange, touchable). La date ne se coupe pas : sur un
+   écran étroit, l'état passe à la ligne en entier. */
+.salle .salle-date-ligne { display: flex; flex-wrap: wrap; align-items: center; gap: 0 2px; }
+.salle .salle-date-ligne > span:first-child, .salle .salle-version { white-space: nowrap; }
+.salle .salle-version { display: inline-flex; align-items: center; gap: 4px; font-weight: 650; }
+.salle .salle-version .salle-ic { --icon-size: 13px; }
+.salle .salle-version-ok { color: var(--salle-accent, var(--color-green)); }
+.salle .salle-version-maj { flex-basis: 100%; justify-content: flex-start; margin-top: 2px; color: var(--salle-record, var(--color-orange)); padding: 0; min-height: 0; font-size: inherit; text-decoration: underline; }
+
+/* 2.40.2 (demande : « faire pareil que Tes progrès » pour « Manger ») : le creux du jour, comme celui du niveau : « Aujourd'hui »,
+   ce qu'il reste à droite, les jauges ; puis des lignes à pastille, comme celles de « Tes progrès » (2.40.3 : les repas en
+   photo, pastille lime, comme les exercices qui montent). */
+.salle .salle-repas-bloc { display: block; margin: 10px 0 2px; padding: 9px 12px 10px; border-radius: 16px; background: var(--salle-carte-2); }
+.salle-repas-haut { display: flex; align-items: baseline; justify-content: space-between; flex-wrap: wrap; gap: 2px 10px; margin: 0 0 9px; min-width: 0; }
+.salle-repas-nom { flex: 1 1 auto; min-width: 0; font-family: var(--salle-titre); font-size: 15px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.2; color: var(--salle-texte); }
+.salle .salle-repas-reste { flex: none; font-size: 13px; font-weight: 750; color: var(--salle-texte-doux); white-space: nowrap; }
+.salle .salle-repas-ok { display: inline-flex; align-items: center; gap: 4px; color: var(--salle-accent); }
+.salle .salle-repas-ok .salle-ic { --icon-size: 14px; }
+.salle .salle-repas-besoins { flex: none; margin: 0; padding: 0; min-height: 0; font-size: 13px; font-weight: 750; }   /* 2.40.5 : sans besoins, le lien vers la taille et l'âge */
+.salle .salle-repas-bloc > .salle-jauges { gap: 8px; }
+.salle .salle-repas-bloc .salle-jauge-tete { font-size: 13px; }
+.salle .salle-repas-bloc .salle-niveau-barre { height: 8px; background: color-mix(in srgb, var(--salle-texte) 11%, transparent); }
+.salle-repas-lignes { display: flex; flex-direction: column; margin-top: 4px; }
+.salle .salle-repas-ligne { display: flex; align-items: center; gap: 12px; min-width: 0; padding: 7px 0; border-top: 1px solid var(--salle-bord); font-size: 14px; line-height: 1.3; overflow-wrap: anywhere; }
+.salle .salle-repas-ligne:first-child { border-top: none; }
+.salle .salle-repas-ligne > .salle-ic { flex: none; width: 28px; height: 28px; border-radius: 9px; background: rgba(255, 138, 76, 0.16); color: #ff8a4c; --icon-size: 16px; }
+.salle .salle-repas-mange > .salle-ic { background: var(--salle-accent-doux); color: var(--salle-accent); }
+.salle .salle-repas-eau > .salle-ic { background: color-mix(in srgb, var(--salle-t-bleu) 16%, transparent); color: var(--salle-t-bleu); }
+.salle .salle-repas-records > .salle-ic { background: var(--salle-record-doux); color: var(--salle-record); }
+.salle-repas-texte { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 10px; row-gap: 1px; flex: 1 1 auto; min-width: 0; }
+.salle-repas-ligne-nom { flex: 1 1 auto; min-width: 0; font-weight: 600; color: var(--salle-texte); }
+.salle-repas-ligne-valeur { margin-left: auto; font-family: var(--salle-chiffres); font-size: 15px; font-weight: 800; font-variant-numeric: tabular-nums; letter-spacing: -0.01em; color: var(--salle-texte); white-space: nowrap; }
+.salle .salle-repas-records .salle-repas-ligne-valeur { color: var(--salle-record); }
+/* Le prochain repas : son nom en gras et son attendu à droite (2.40.4), ses plats dessous (reliés par « ou »). */
+.salle .salle-repas-plats { align-items: flex-start; }
+.salle .salle-repas-plats > .salle-ic { margin-top: 1px; }
+.salle-repas-plats .salle-repas-texte { flex-direction: column; align-items: stretch; }
+.salle-repas-plats-haut { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; min-width: 0; }
+.salle .salle-repas-plats .salle-repas-ligne-nom { font-weight: 750; }
+.salle-repas-quoi { font-size: 14px; font-weight: 500; line-height: 1.35; color: var(--salle-texte-doux); }
+.salle .salle-repas-seule { display: block; color: var(--salle-texte); }
+

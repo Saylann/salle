@@ -1,0 +1,5 @@
+# Jamais publié : les données de l'utilisateur et ce que le Mac ajoute.
+data.json
+donnees/
+.DS_Store
+__pycache__/

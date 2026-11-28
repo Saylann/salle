@@ -1,0 +1,166 @@
+/* Progrès et Mesures (src/65-progres.js) : le niveau, la semaine, les séries par muscle, la régularité, chaque exercice et
+   sa courbe, les mesures et la carte du palier. */
+
+/* ── Progrès : le niveau (L.niveau), carte héros en haut : le numéro en grand dans un carré lime, le titre en très gros,
+   les XP en pastille, la barre, la phrase, l'échelle des titres (coche = passé, rond lime = ici, cercle = à venir), puis une
+   fois par appareil ce qui rapporte des XP. ── */
+.salle .salle-heros.salle-niveau-carte { padding: 18px 18px 18px; }
+.salle-niveau-entete { display: flex; align-items: center; gap: 14px; min-width: 0; }
+.salle .salle-niveau-grand {
+  flex: none; display: inline-flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 18px;
+  background: var(--salle-accent-fond); color: var(--salle-sur-accent); font-size: 30px; font-weight: 800; letter-spacing: -0.03em;
+  box-shadow: 0 10px 24px -10px rgba(200, 245, 60, 0.6), 0 1px 0 rgba(255, 255, 255, 0.45) inset;
+}
+.salle-niveau-quoi { display: flex; flex-direction: column; gap: 2px; flex: 1 1 auto; min-width: 0; }
+.salle .salle-niveau-surtitre { font-size: 12px; font-weight: 800; letter-spacing: 0.09em; text-transform: uppercase; color: var(--salle-accent); }
+.salle .salle-niveau-titre { font-family: var(--salle-titre); font-size: 28px; font-weight: 800; letter-spacing: -0.035em; line-height: 1.05; color: var(--salle-heros-texte); overflow-wrap: anywhere; }
+.salle .salle-niveau-carte > .salle-niveau-barre { margin-top: 16px; height: 12px; background: rgba(255, 255, 255, 0.1); }
+.salle .salle-niveau-carte > .salle-niveau-bornes { color: var(--salle-heros-doux); }
+.salle .salle-niveau-carte > .salle-niveau-phrase { margin: 12px 0 0; font-size: 14px; font-weight: 600; line-height: 1.4; color: var(--salle-heros-texte); }
+.salle-echelle { list-style: none; display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); margin: 18px 0 0; padding: 0; }
+.salle-echelle-palier { position: relative; display: flex; flex-direction: column; align-items: center; gap: 5px; min-width: 0; text-align: center; }
+/* Le trait entre deux paliers : lime quand le palier de droite est atteint. */
+.salle-echelle-palier + .salle-echelle-palier::before { content: ""; position: absolute; top: 10px; right: 50%; width: 100%; height: 2px; background: rgba(255, 255, 255, 0.14); }
+.salle-echelle-passe + .salle-echelle-palier::before, .salle-echelle-palier.salle-echelle-passe::before, .salle-echelle-palier.salle-echelle-ici::before { background: var(--salle-accent-fond); }
+.salle-echelle-passe + .salle-echelle-avenir::before { background: rgba(255, 255, 255, 0.14); }
+.salle-echelle-point { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; width: 22px; height: 22px; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.28); background: var(--salle-carte); }
+.salle .salle-echelle-passe .salle-echelle-point { border-color: var(--salle-accent-fond); background: var(--salle-accent-fond); color: var(--salle-sur-accent); }
+.salle-echelle-passe .salle-echelle-point .salle-ic { --icon-size: 12px; }
+.salle-echelle-passe .salle-echelle-point .salle-ic svg { stroke-width: 3.25; }
+.salle-echelle-ici .salle-echelle-point { border-color: var(--salle-accent-fond); box-shadow: 0 0 0 4px var(--salle-accent-doux); }
+.salle-echelle-ici .salle-echelle-point::after { content: ""; width: 10px; height: 10px; border-radius: 50%; background: var(--salle-accent-fond); }
+.salle .salle-echelle-titre { max-width: 100%; font-size: 12px; font-weight: 700; line-height: 1.2; color: var(--salle-heros-doux); overflow-wrap: anywhere; }
+.salle .salle-echelle-ici .salle-echelle-titre { color: var(--salle-heros-texte); font-weight: 800; }
+.salle .salle-echelle-niv { font-size: 11px; font-weight: 700; color: var(--salle-pale); }
+.salle .salle-echelle-ici .salle-echelle-niv { color: var(--salle-accent); }
+/* Sous l'échelle des paliers (par séances), le palier suivant et sa phrase (lime : l'objectif), puis une ligne par
+   palier atteint : ce que les mesures ont changé depuis le départ (lime si ça a bougé, gris sinon ; jamais de rouge), puis
+   les photos du départ et de la dernière côte à côte. */
+.salle .salle-palier-suivant { margin: 16px 0 0; padding: 10px 12px; border-radius: 14px; background: var(--salle-verre); font-size: 13.5px; font-weight: 600; line-height: 1.4; color: var(--salle-heros-doux); }
+.salle .salle-palier-suivant > strong { display: block; color: var(--salle-accent); font-weight: 800; }
+.salle .salle-palier-suivant > p { margin: 2px 0 0; }
+.salle-corps-liste { list-style: none; margin: 12px 0 0; padding: 0; }
+.salle-corps-ligne { display: flex; align-items: baseline; justify-content: space-between; gap: 4px 12px; flex-wrap: wrap; padding: 8px 0; border-top: 1px solid var(--salle-verre-bord); font-size: 13px; line-height: 1.35; }
+.salle-corps-ligne:first-child { border-top: none; }
+.salle .salle-corps-titre { flex: none; font-weight: 800; color: var(--salle-heros-texte); }
+.salle .salle-corps-texte { flex: 1 1 12em; min-width: 0; text-align: right; font-weight: 650; color: var(--salle-heros-doux); overflow-wrap: anywhere; }
+.salle .salle-corps-change .salle-corps-texte { color: var(--salle-accent); font-weight: 800; }
+/* 2.5.1 : le « Pourquoi » d'une ligne, replié, sur toute la largeur sous elle. */
+.salle .salle-corps-ligne > details.salle-pourquoi { flex: 1 0 100%; margin: 0; text-align: right; }
+.salle-photos { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; margin: 14px 0 0; }
+.salle-photos.salle-photos-une { grid-template-columns: minmax(0, 1fr); max-width: 60%; }
+.salle .salle-photo { margin: 0; min-width: 0; }
+.salle .salle-photo img { display: block; width: 100%; aspect-ratio: 3 / 4; object-fit: cover; border-radius: 14px; background: var(--salle-verre); }
+.salle .salle-photo-vide { display: flex; align-items: center; justify-content: center; aspect-ratio: 3 / 4; border-radius: 14px; background: var(--salle-verre); font-size: 12px; color: var(--salle-heros-doux); }
+.salle .salle-photo figcaption { margin-top: 5px; text-align: center; color: var(--salle-heros-doux); }
+
+/* ── Progrès : la semaine en XP (une coche dans un rond lime plein = gagné ; un cercle vide = pas encore ; à droite, ce que la ligne vaut) ── */
+.salle-case { display: flex; align-items: center; gap: 12px; padding: 11px 0; border-bottom: 1px solid var(--salle-bord); }
+.salle-case:last-child { border-bottom: none; padding-bottom: 2px; }
+/* Ce que la ligne vaut : lime quand c'est gagné, pâle sinon ; orange pour ce qui coûte (jamais de rouge). */
+.salle .salle-case-gain { flex: none; font-size: 14px; font-weight: 800; white-space: nowrap; color: var(--salle-pale); }
+.salle .salle-case-faite .salle-case-gain { color: var(--salle-accent); }
+.salle .salle-case-alerte .salle-case-gain, .salle .salle-case-perte .salle-case-gain { color: var(--salle-t-orange); }
+.salle .salle-case-alerte .salle-case-marque, .salle .salle-case-perte .salle-case-marque { border-color: var(--salle-t-orange); }
+/* « Protéines et sommeil » : toute la ligne se touche (un bouton sans allure de bouton). */
+.salle .salle-case-bouton { width: 100%; height: auto; margin: 0; background: none; border: none; border-bottom: 1px solid var(--salle-bord); border-radius: 0; box-shadow: none; color: inherit; font: inherit; text-align: left; cursor: pointer; white-space: normal; }
+.salle .salle-case-bouton:last-child { border-bottom: none; }
+.salle .salle-case-regle { margin: 10px 0 0; }
+.salle-cases > .salle-ligne:first-child { margin-bottom: 4px; }
+.salle-case-marque { flex: none; display: flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; border: 2px solid; font-weight: 800; }
+.salle .salle-case-marque.salle-etat-pale { border-color: color-mix(in srgb, var(--salle-texte) 22%, transparent); }
+.salle .salle-case-marque.salle-etat-fait { border: none; background: var(--salle-accent-fond); color: var(--salle-sur-accent); box-shadow: 0 4px 10px -4px var(--salle-accent-lueur); }
+.salle-case-marque .salle-ic { --icon-size: 26px; }
+.salle-case-marque .salle-ic svg { stroke-width: 3; }
+.salle-case-marque .salle-ic svg circle { display: none; }   /* l'icône « fait » (circle-check) dans le rond : la coche seule */
+.salle-case-texte { display: flex; flex-direction: column; gap: 1px; flex: 1; min-width: 0; overflow-wrap: anywhere; }
+.salle-case-titre { font-size: 15px; font-weight: 650; }
+
+/* ── Progrès : les séries par muscle (une barre ronde par muscle, la zone 10-15 en bande lime pour dos, épaules, pecs) ── */
+.salle-muscles { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 12px; }
+.salle-muscle { display: grid; grid-template-columns: minmax(0, 8.5em) minmax(0, 1fr) 2.6em; align-items: center; gap: 10px; font-size: 13px; }
+.salle-muscle-nom { overflow-wrap: anywhere; line-height: 1.2; font-weight: 600; }
+/* « dont 3 pour le haut des pecs » : sous la barre des pecs, alignée sur son début. */
+.salle-muscle-dont { margin: -6px 0 0 calc(8.5em + 10px); font-size: 12px; font-weight: 550; color: var(--salle-texte-doux); }
+.salle-muscle-barre { position: relative; height: 14px; border-radius: 999px; background: var(--salle-carte-2); overflow: hidden; }
+/* La zone : une bande lime franche, bordée de deux traits (elle se voit même quand la barre la recouvre : la barre est plus fine). */
+.salle-zone { position: absolute; top: 0; bottom: 0; background: color-mix(in srgb, var(--salle-accent-fond) 38%, transparent); border-left: 2px solid var(--salle-accent); border-right: 2px solid var(--salle-accent); }
+.salle-muscle-plein { position: absolute; top: 4px; bottom: 4px; left: 0; max-width: 100%; border-radius: 999px; background: var(--salle-accent); transition: width 0.3s ease; }
+.salle-muscle-trop .salle-muscle-plein { background: var(--salle-texte-doux); }
+.salle-muscle-nb { min-width: 2.2em; text-align: right; white-space: nowrap; font-size: 14px; font-weight: 800; }   /* colonne fixe (2.6em) : les barres restent alignées */
+.salle-legende { display: block; line-height: 1.5; }
+.salle-zone-legende { display: inline-block; vertical-align: -1px; margin-right: 4px; width: 22px; height: 12px; border-radius: 3px; background: color-mix(in srgb, var(--salle-accent-fond) 38%, transparent); border-left: 2px solid var(--salle-accent); border-right: 2px solid var(--salle-accent); }
+
+/* ── Progrès : la régularité (une colonne par semaine, un rond par séance) ── */
+.salle-grille { display: flex; align-items: flex-end; gap: 6px; margin: 16px 0 6px; padding-bottom: 2px; overflow-x: auto; }
+.salle-grille-semaine { flex: 1 0 32px; max-width: 52px; min-width: 32px; display: flex; flex-direction: column; align-items: center; gap: 6px; padding: 8px 6px 6px; border: 1.5px solid transparent; border-radius: 12px; color: var(--salle-pale); }
+.salle-grille-ronds { display: flex; flex-direction: column-reverse; gap: 4px; }
+.salle-grille-rond { width: 13px; height: 13px; border-radius: 50%; border: 2px solid currentColor; }
+.salle-grille-rond.salle-plein { background: currentColor; }
+.salle-grille-ok .salle-grille-rond.salle-plein, .salle-grille-rattrapee .salle-grille-rond.salle-plein, .salle-grille-en-cours .salle-grille-rond.salle-plein { background: var(--salle-accent-fond); border-color: var(--salle-accent); }
+.salle-grille-date { font-family: var(--salle-chiffres); font-size: 11px; font-weight: 750; color: var(--salle-texte-doux); }
+.salle-grille-ok, .salle-grille-rattrapee { color: var(--salle-accent); }
+.salle-grille-rattrapee { background: var(--salle-accent-doux); }
+.salle-grille-en-cours { color: var(--salle-accent); border-color: var(--salle-accent-moyen); background: var(--salle-accent-doux); }
+.salle-grille-en-cours .salle-grille-date { color: var(--salle-accent); }
+.salle-grille-en-attente { color: var(--salle-accent); }
+.salle-grille-pause { border-style: dashed; border-color: var(--salle-bord); }
+.salle-grille-manque { color: var(--salle-pale); }
+
+/* ── Progrès : chaque exercice, ses records et sa courbe (trait épais, dégradé dessous, un point par séance) ── */
+.salle-prog-carte .salle-ligne > strong { min-width: 0; overflow-wrap: anywhere; }
+.salle .salle-prog-carte .salle-badge.salle-etat-record { border-color: transparent; background: var(--salle-record-fond); color: var(--salle-sur-record); font-weight: 800; }
+.salle .salle-prog-carte .salle-badge .salle-ic { --icon-size: 13px; color: inherit; }
+.salle-courbe-phrase { margin: 4px 0 0; font-family: var(--salle-chiffres); font-weight: 700; font-variant-numeric: tabular-nums; }
+.salle-records-exo { margin-top: 10px; border-top: 1px solid var(--salle-bord); padding-top: 6px; }
+.salle-records-exo .salle-ligne { min-height: 30px; }
+.salle .salle-records-exo .salle-nombre { text-align: right; font-size: 15px; font-weight: 800; letter-spacing: -0.01em; }
+.salle-courbe-boite { margin: 8px 0 0; }
+.salle-courbe { width: 100%; height: auto; max-height: 140px; display: block; overflow: visible; }
+.salle-courbe-aire { stroke: none; }
+.salle-courbe-degrade-haut { stop-color: var(--salle-accent-fond); stop-opacity: 0.5; }
+.salle-courbe-degrade-bas { stop-color: var(--salle-accent-fond); stop-opacity: 0; }
+.theme-dark .salle-courbe-degrade-haut { stop-opacity: 0.28; }
+.salle-courbe-ligne { fill: none; stroke: var(--salle-accent); stroke-width: 3; vector-effect: non-scaling-stroke; stroke-linejoin: round; stroke-linecap: round; }
+.salle-courbe-repere { stroke: color-mix(in srgb, var(--salle-texte) 16%, transparent); stroke-width: 1; stroke-dasharray: 3 4; vector-effect: non-scaling-stroke; }
+.salle-courbe-point { fill: var(--salle-carte); stroke: var(--salle-accent); stroke-width: 2.5; vector-effect: non-scaling-stroke; }
+.salle-courbe-fin { fill: var(--salle-accent); stroke: var(--salle-carte); stroke-width: 3; }
+.salle-courbe-record { fill: var(--salle-record-fond); stroke: var(--salle-carte); stroke-width: 2; }
+.salle-courbe-bornes { display: flex; justify-content: space-between; align-items: baseline; flex-wrap: wrap; gap: 4px 8px; margin-top: 6px; font-family: var(--salle-chiffres); font-size: 12px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.salle-courbe-min, .salle-courbe-max { color: var(--salle-texte-doux); }
+.salle .salle-courbe-derniere { color: var(--salle-texte); font-weight: 800; }
+
+/* ── Mesures : les champs en gros chiffres, la tendance en titre, les courbes ── */
+.salle .salle-mesure-ligne { min-height: 58px; padding: 6px 0; border-bottom: 1px solid var(--salle-bord); }
+.salle .salle-mesure-ligne:last-of-type { border-bottom: none; }
+.salle .salle-mesure-ligne > span:first-child { font-weight: 600; }
+.salle .salle-mesure-ligne .salle-champ { flex: none; width: 104px; height: 46px; border-radius: 12px; font-size: 20px; font-weight: 800; }
+.salle .salle-mesures-saisie > .salle-titre-carte { margin-bottom: 4px; }
+.salle .salle-carte.salle-mesures-saisie > strong.salle-titre-carte > .salle-ic { background: color-mix(in srgb, var(--salle-t-violet) 15%, transparent); color: var(--salle-t-violet); }
+.salle .salle-tendance { margin: 0 0 6px; font-family: var(--salle-titre); font-size: 18px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.25; }
+.salle .salle-mesure-courbe > .salle-titre-carte { margin-bottom: 2px; }
+.salle .salle-liste-mesures { margin: 6px 0 0; }
+.salle .salle-liste-mesures li { counter-increment: none; padding: 10px 0; border-bottom: 1px solid var(--salle-bord); font-weight: 600; }
+.salle .salle-liste-mesures li:last-child { border-bottom: none; padding-bottom: 2px; }
+.salle .salle-liste-mesures li::before { content: none; }
+/* La carte du palier en haut de Mesures (un filet lime : c'est maintenant), les conditions, « Prendre la photo »
+   (un <label> qui porte le champ fichier, invisible mais touchable), « Plus tard » en lien discret. */
+.salle .salle-palier-mesures { box-shadow: var(--salle-ombre), inset 0 0 0 1.5px var(--salle-accent-moyen); }
+.salle .salle-carte.salle-palier-mesures > strong.salle-titre-carte > .salle-ic { background: var(--salle-accent-doux); color: var(--salle-accent); }
+.salle .salle-palier-phrase-mesures { margin: 8px 0 4px; font-weight: 650; line-height: 1.4; }
+.salle .salle-palier-mesures > .salle-petit { margin: 4px 0; }
+.salle .salle-photo-bouton { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; margin-top: 12px; }
+.salle .salle-photo-champ { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.salle .salle-photo-impossible { margin-top: 10px; font-weight: 600; }
+.salle .salle-palier-mesures > .salle-lien { display: block; margin: 6px auto 0; }
+
+/* ── Selon l'appareil ── */
+@media (max-width: 400px) {
+  .salle-muscle { grid-template-columns: minmax(0, 7em) minmax(0, 1fr) 2.6em; gap: 8px; font-size: 12.5px; }
+  .salle-muscle-dont { margin-left: calc(7em + 8px); }
+  .salle .salle-niveau-titre { font-size: 26px; }
+  .salle .salle-echelle-titre { font-size: 11px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .salle-muscle-plein { transition: none; }
+}

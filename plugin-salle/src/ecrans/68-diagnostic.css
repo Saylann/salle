@@ -1,0 +1,9 @@
+/* Tester cet appareil (src/68-diagnostic.js). */
+
+.salle-diag-tete { display: flex; align-items: center; justify-content: space-between; gap: var(--size-4-2, 8px); flex-wrap: wrap; }
+.salle-diag-tete strong { min-width: 0; }
+.salle-diag .salle-petit { margin: var(--size-2-3, 6px) 0 var(--size-4-2, 8px); }
+.salle-diag > .salle-bouton, .salle-diag > label.salle-bouton { margin: var(--size-2-2, 4px) var(--size-4-2, 8px) 0 0; }
+.salle-diag .salle-choix { margin-top: var(--size-2-2, 4px); }
+.salle-diag-question { margin-top: var(--size-4-1, 4px); }
+.salle-diag-lien { font-family: var(--font-monospace, monospace); font-size: var(--font-ui-smaller, 12px); overflow-wrap: anywhere; -webkit-user-select: all; user-select: all; padding: 8px 10px; border-radius: var(--salle-rayon-s); background: var(--salle-carte-2); }

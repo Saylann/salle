@@ -1,0 +1,10 @@
+{
+  "departParKg": 0.071,
+  "photo": {
+    "auteur": "free-exercise-db (yuhonas)",
+    "licence": "Unlicense (domaine public)",
+    "licenceUrl": "https://unlicense.org",
+    "source": "https://github.com/yuhonas/free-exercise-db/tree/main/exercises/Preacher_Curl",
+    "note": "curl au pupitre avec barre en Z ; 0.jpg = départ (bras presque tendus), 1.jpg = arrivée ; réduites à 520 px"
+  }
+}

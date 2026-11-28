@@ -1,0 +1,99 @@
+/* « Calories d'un plat », dans « Manger », et sa clé dans Réglages → Appli (src/ecrans/66b-calories.js). */
+
+/* ── La clé : 3 étapes, le champ, « Enregistrer » ── */
+.salle .salle-cle-etapes { margin: 8px 0; padding-left: 22px; line-height: 1.5; }
+.salle .salle-cle-etapes .salle-lien { padding-left: 0; }
+.salle .salle-cle { display: flex; flex-direction: column; gap: 8px; margin-top: 4px; }
+
+/* ── Le résultat : le plat, les kcal en gros, puis les protéines ── */
+.salle .salle-calories-resultat { margin-top: 14px; text-align: center; }
+.salle .salle-calories-plat { display: block; font-size: 17px; }
+.salle .salle-calories-kcal { margin: 4px 0 2px; font-size: 40px; font-weight: 750; line-height: 1.1; color: var(--salle-accent); }
+.salle .salle-calories-resultat > p { margin: 8px 0 0; }
+.salle .salle-calories-aliments { margin-top: 10px; text-align: left; }
+.salle .salle-calories-aliments summary { cursor: pointer; color: var(--salle-texte-doux); font-weight: 600; }
+.salle .salle-calories-attente { margin: 14px 0 0; text-align: center; color: var(--salle-texte-doux); }
+.salle .salle-calories-erreur { margin: 14px 0 0; text-align: center; font-weight: 600; color: var(--salle-approche); }
+/* 2.39.3 : ce qu'il manque au repas, juste sous les protéines ; sans besoins connus, le lien vers « Calories du jour ». */
+.salle .salle-calories-manque { margin: 12px 0 0; padding: 10px 12px; border-radius: 12px; background: var(--salle-carte-2); font-size: 15px; line-height: 1.35; }
+.salle .salle-calories-manque p { margin: 0; }
+.salle .salle-calories-manque .salle-lien { margin-top: 6px; }
+
+/* 2.40.1 : la carte « Aujourd'hui » de « Manger » et les jauges du jour (aussi sur l'accueil). Préfixe salle-suivi- : salle-jour
+   est la semaine de l'accueil (61-accueil.css) ; en 2.40.0, .salle-jour d'ici lui donnait des cases grises. */
+.salle .salle-suivi-titre { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.salle .salle-suivi-titre > strong { display: flex; align-items: center; gap: 10px; font-family: var(--salle-titre); font-size: 18px; font-weight: 800; }
+.salle .salle-suivi-badge { display: inline-flex; align-items: center; gap: 6px; padding: 4px 10px; border-radius: 999px; background: var(--salle-accent-doux); color: var(--salle-accent); font-size: 13px; font-weight: 750; }
+.salle .salle-jauges { display: flex; flex-direction: column; gap: 10px; width: 100%; }
+.salle .salle-jauges > .salle-suivi-badge { align-self: flex-start; }
+.salle .salle-calories > .salle-jauges { margin: 14px 0 4px; }
+.salle .salle-jauge { display: flex; flex-direction: column; gap: 5px; }
+.salle .salle-jauge-tete { display: flex; justify-content: space-between; gap: 8px; font-size: 14px; color: var(--salle-texte-doux); }
+.salle .salle-jauge-tete > .salle-nombre { color: var(--salle-texte); font-weight: 750; }
+.salle .salle-jauge-faite .salle-jauge-tete > .salle-nombre { color: var(--salle-accent); }
+.salle .salle-suivi-reste { margin: 10px 0 4px; font-size: 14px; color: var(--salle-texte-doux); }
+.salle .salle-suivi-reste > p { margin: 2px 0; }
+.salle .salle-suivi-ok .salle-suivi-reste { color: var(--salle-accent); }
+.salle .salle-suivi-repas { display: flex; flex-direction: column; gap: 4px; margin: 10px 0 12px; padding: 8px 12px; border-radius: 12px; background: var(--salle-carte-2); font-size: 14px; }
+.salle .salle-suivi-repas-ligne { display: flex; justify-content: space-between; gap: 8px; }
+.salle .salle-suivi-attendu { color: var(--salle-texte-doux); }   /* 2.40.4 : l'attendu des repas qui restent */
+.salle .salle-calories-resultat > p.salle-calories-note { margin: 12px 0 0; color: var(--salle-accent); font-weight: 650; }
+
+/* 2.40.6 : la feuille « Tes calories du jour » (taille, âge, sexe manquants), par-dessus l'accueil ; la même que « La séance ». */
+.salle .salle-besoins-fenetre { padding: 18px 18px calc(18px + env(safe-area-inset-bottom, 0px)); }
+.salle .salle-besoins-titre { display: flex; align-items: center; gap: 10px; font-family: var(--salle-titre); font-size: 20px; font-weight: 800; }
+.salle .salle-besoins-fenetre .salle-choix { margin-top: 12px; }
+.salle .salle-besoins-plus-tard { margin: 14px 0 0; }
+
+
+/* 2.41.0 : le plat écrit, sous la photo : le champ et « Calculer », puis le moment (Matin, Midi, Goûter, Soir). */
+.salle .salle-ecrit { display: flex; flex-direction: column; gap: 8px; margin-top: 10px; }
+.salle .salle-ecrit-ligne { display: flex; gap: 8px; align-items: stretch; }
+.salle .salle-ecrit-ligne > .salle-champ { flex: 1 1 auto; min-width: 0; }
+.salle .salle-ecrit-moments { display: flex; flex-wrap: wrap; gap: 6px; }
+
+/* 2.41.1 : « Depuis la galerie », sous l'appareil photo, plus discret. */
+.salle .salle-photo-galerie { margin-top: 8px; }
+
+/* 2.41.2 : l'aide sous le plat écrit, et « Il manque quelque chose ? » sous la liste. */
+.salle .salle-ecrit-aide { margin: 2px 0 0; color: var(--salle-texte-doux); }
+.salle .salle-calories-resultat > .salle-calories-manque-lien { margin-top: 8px; }
+
+/* 2.41.3 : × sur chaque repas noté, puis « Retirer » ou « Garder ». */
+.salle .salle-suivi-repas-droite { display: flex; align-items: center; gap: 10px; flex: none; }
+.salle .salle-suivi-retirer { min-width: 28px; min-height: 28px; padding: 0; border: none; border-radius: 8px; background: none; color: var(--salle-texte-doux); font-size: 18px; line-height: 1; cursor: pointer; }
+.salle .salle-suivi-retrait { color: var(--salle-texte); font-weight: 650; }
+
+/* 2.41.4 : ajouter un repas en une ligne : le moment, puis Photo · Galerie · Écrire ; les repas du jour en lignes simples. */
+.salle .salle-ajout { display: flex; flex-direction: column; gap: 10px; margin: 16px 0 6px; }
+.salle .salle-ajout-moments { display: flex; flex-wrap: wrap; gap: 6px; }
+.salle .salle-ajout-moment { padding: 5px 12px; border: 1px solid var(--salle-bord); border-radius: 999px; background: none; color: var(--salle-texte-doux); font-size: 13px; font-weight: 650; cursor: pointer; }
+.salle .salle-ajout-moment.salle-ajout-choisi { background: var(--salle-accent-doux); color: var(--salle-accent); border-color: transparent; }
+.salle .salle-ajout-boutons { display: grid; grid-template-columns: 1.4fr 1fr 1fr; gap: 8px; }
+.salle .salle-ajout-boutons.salle-ajout-deux { grid-template-columns: 1.4fr 1fr; }
+.salle .salle-ajout-boutons > .salle-ajout-bouton { position: relative; overflow: hidden; display: flex; align-items: center; justify-content: center; gap: 6px; width: auto; min-height: 50px; margin: 0; padding: 0 8px; border: 1px solid var(--salle-bord); border-radius: 14px; background: var(--salle-carte-2); color: var(--salle-texte); font-size: 15px; font-weight: 700; cursor: pointer; }
+/* 2.41.5 (« retire le fluo sur Photo, ça porte à confusion ») : Photo a la même couleur que Galerie et Écrire ; seule la couleur
+   d'un moment touché dit « choisi ». */
+.salle .salle-ajout-boutons > .salle-ajout-actif { border-color: var(--salle-accent); color: var(--salle-accent); }
+.salle .salle-calories > .salle-suivi-repas { margin: 14px 0 4px; }
+.salle .salle-suivi-repas-ligne { align-items: center; }
+
+/* 2.41.8 : l'analyse en cours se voit (un bloc qui tourne) ; le résultat se lit dans l'ordre : ajouté, le plat, deux chiffres
+   (kcal, protéines), la fourchette, ce qui a été vu aliment par aliment. */
+.salle .salle-calories-attente { display: flex; flex-direction: column; align-items: center; gap: 6px; margin: 14px 0 4px; padding: 18px 14px; border-radius: 14px; background: var(--salle-accent-doux); color: var(--salle-texte); text-align: center; }
+.salle .salle-calories-roue { width: 30px; height: 30px; border-radius: 50%; border: 3px solid var(--salle-bord); border-top-color: var(--salle-accent); animation: salle-roue 0.9s linear infinite; }
+@keyframes salle-roue { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .salle .salle-calories-roue { animation: none; } }
+.salle .salle-calories-resultat { display: flex; flex-direction: column; gap: 10px; margin-top: 14px; padding: 14px; border-radius: 14px; background: var(--salle-carte-2); text-align: left; }
+.salle .salle-calories-resultat > p { margin: 0; }
+.salle .salle-resultat-tete { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+.salle .salle-resultat-ajoute { display: inline-flex; align-items: center; gap: 6px; color: var(--salle-accent); font-size: 14px; font-weight: 750; }
+.salle .salle-calories-resultat .salle-calories-plat { font-size: 18px; line-height: 1.25; }
+.salle .salle-resultat-chiffres { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.salle .salle-resultat-chiffre { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-radius: 12px; background: var(--salle-carte); }
+.salle .salle-resultat-valeur { font-size: 22px; font-weight: 800; line-height: 1.15; color: var(--salle-texte); }
+.salle .salle-resultat-chiffre:first-child .salle-resultat-valeur { color: var(--salle-accent); }
+.salle .salle-resultat-vu { display: flex; flex-direction: column; gap: 4px; margin: 0; }
+.salle .salle-resultat-vu-titre { font-weight: 650; }
+.salle .salle-resultat-aliment { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; gap: 10px; align-items: baseline; font-size: 14px; }
+.salle .salle-calories-resultat > .salle-calories-manque-lien { margin-top: 0; align-self: flex-start; }

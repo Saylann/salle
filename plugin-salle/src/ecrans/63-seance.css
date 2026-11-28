@@ -1,0 +1,734 @@
+/* L'écran de séance (src/63b-seance.js, 63c-seance-carte.js). La cible en gros, le tableau des séries, le repos qui annonce la suite, le chrono du gainage,
+   les séries d'approche, les superséries, le gros bouton collé en bas.
+   Ce qui doit se lire à bout de bras, en sueur, saute aux yeux : la cible en très
+   gros chiffres arrondis, la série en cours bordée de lime, le repos dans une carte sombre (dans les deux thèmes) avec un
+   temps énorme et une grande jauge qui se vide, le gros bouton lime en bas. Le reste se tait (texte doux, pas de cadre).
+   Une couleur, un sens (variables de 10-base.css) : lime = maintenant et fait (toujours avec une coche), or = record (avec
+   le trophée), orange = approche (« É »), pâle = à venir. Jamais de rouge pour un résultat ; la couleur n'est jamais seule. */
+
+/* Les minuteurs (repos, vélo de l'échauffement) : une carte sombre dans les deux thèmes, comme la carte héros de l'accueil.
+   Contrastes calculés : texte 14:1 sur le fond (10:1 sur un bouton), lime 12:1 ; à 0, texte presque noir sur lime 14:1. */
+.salle {
+  --salle-minuteur-fond:
+    radial-gradient(120% 140% at 100% 0%, rgba(200, 245, 60, 0.20) 0%, rgba(200, 245, 60, 0) 55%),
+    linear-gradient(160deg, #1f242b 0%, #13161a 70%, #0e1013 100%);
+  --salle-minuteur-texte: #f4f6f8;
+  --salle-minuteur-lime: #c8f53c;
+  --salle-minuteur-bouton: rgba(255, 255, 255, 0.11);
+  --salle-minuteur-piste: rgba(255, 255, 255, 0.13);
+}
+
+/* ── L'en-tête : « 23 min sur environ 1 h 10 » passe sur deux lignes égales plutôt que « 1 h 10 » seul en dessous ── */
+.salle .salle-titre-seance > .salle-petit { display: block; margin-top: 2px; font-weight: 650; line-height: 1.25; text-wrap: balance; }
+/* Très petit écran (320 px) : le nom passe sous « Accueil » et « Terminer », sinon « Séance A » se coupe au milieu du mot. */
+@media (max-width: 360px) { .salle .salle-entete > .salle-titre-seance { order: 1; flex: 1 1 100%; } }
+/* iPhone : « Confirmer : terminer » (le 2e toucher, bouton lime) est large : le nom passe dessous le temps de confirmer, sinon
+   « Séance A » se coupait en « Séa / nce / A » à 375 px (vu dans l'aperçu, 2.1.0). Sans :has() (iOS < 15.4) : comme avant. */
+@media (max-width: 480px) { .salle .salle-entete:has(> .salle-mini.salle-principal) > .salle-titre-seance { order: 1; flex: 1 1 100%; } }
+
+/* ── L'avancement (les séries faites) : une barre épaisse et arrondie ── */
+.salle-barre { height: 8px; border-radius: 999px; background: var(--salle-bord); margin: 0 0 14px; overflow: hidden; }
+.salle-barre-pleine { height: 100%; background: var(--salle-accent-fond); border-radius: 999px; box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--salle-accent) 30%, transparent); transition: width 0.3s ease; }
+
+/* ── Le repos : une carte sombre collée en haut, le temps énorme, une grande jauge qui se vide, la suite en clair ──
+   Grille : à gauche « Repos » et le temps (sur deux rangées) ; à droite −15 s / +15 s, puis « Passer » ; dessous la jauge,
+   puis « Ensuite : … » et le record. Les enveloppes du DOM (haut, gauche, boutons) s'effacent (display: contents) sauf la
+   gauche, qui garde le mot et le temps ensemble. */
+.salle-repos {
+  position: sticky; top: 0; z-index: 3;
+  display: grid; grid-template-columns: minmax(0, 1fr) auto auto; column-gap: 8px; row-gap: 8px; align-items: center;
+  margin: 0 0 12px; padding: 14px 16px 16px;
+  background: var(--salle-minuteur-fond); color: var(--salle-minuteur-texte);
+  border-radius: 22px; box-shadow: var(--salle-ombre-forte), 0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+.salle-repos-haut { display: contents; }
+.salle-repos-gauche { grid-column: 1; grid-row: 1 / span 2; display: flex; flex-direction: column; justify-content: center; min-width: 0; }
+.salle-repos-titre { display: inline-flex; align-items: center; gap: 6px; color: var(--salle-minuteur-lime); font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.salle .salle-repos-titre .salle-ic { --icon-size: 15px; color: inherit; }
+.salle .salle-repos .salle-ic { color: inherit; }
+.salle .salle-repos-temps { font-family: var(--salle-chiffres); font-variant-numeric: tabular-nums; font-size: clamp(54px, 17vw, 72px); font-weight: 800; line-height: 0.95; letter-spacing: -0.03em; margin-top: 2px; color: var(--salle-minuteur-texte); transition: color 0.3s ease; }
+.salle .salle-repos .salle-bouton.salle-mini { min-height: var(--salle-cible); min-width: 64px; padding: 6px 12px; border: none; border-radius: 999px; background: var(--salle-minuteur-bouton); color: var(--salle-minuteur-texte); font-size: 15px; font-weight: 750; box-shadow: none; }
+@media (hover: hover) { .salle .salle-repos .salle-bouton.salle-mini:hover { background: rgba(255, 255, 255, 0.18); } }
+.salle-repos-jauge { grid-column: 1 / -1; height: 10px; margin-top: 6px; border-radius: 999px; overflow: hidden; background: var(--salle-minuteur-piste); }
+.salle-repos-jauge-pleine { height: 100%; width: 100%; background: var(--salle-minuteur-lime); border-radius: 999px; transform-origin: left center; transform: scaleX(1); transition: transform 0.5s linear; box-shadow: 0 0 14px rgba(200, 245, 60, 0.45); }
+/* « Ensuite : série 2 · 60 kg × 11 » : ce qu'il faut préparer pendant le repos, en clair et assez gros. */
+.salle-suite { grid-column: 1 / -1; margin-top: 2px; font-size: 16px; font-weight: 700; line-height: 1.35; letter-spacing: -0.01em; color: var(--salle-minuteur-texte); font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+.salle-repos-record { grid-column: 1 / -1; justify-self: start; display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px 6px 6px; border-radius: 999px; background: rgba(255, 176, 32, 0.16); color: var(--salle-minuteur-texte); font-size: 13px; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; }
+.salle .salle-repos .salle-repos-record .salle-ic { width: 26px; height: 26px; border-radius: 50%; background: var(--salle-record-fond); color: var(--salle-sur-record); --icon-size: 14px; }
+/* Les règles de la salle (consigne vue une fois) dans le repos : sur toute la largeur, aux couleurs du minuteur. */
+.salle .salle-repos .salle-consigne { grid-column: 1 / -1; margin: 2px 0 0; padding: 10px 12px; border: 1px dashed rgba(255, 255, 255, 0.22); border-radius: 16px; background: var(--salle-minuteur-bouton); color: var(--salle-minuteur-texte); font-size: 14px; }
+/* Les 10 dernières secondes : le temps passe au lime et la carte s'entoure de lime (sans clignoter ; le chiffre dit déjà tout). */
+/* 2.11.0 (demande : le chrono en grand) : pendant le repos, le chrono prend tout l'écran : le temps en très gros
+   au milieu, la suite dessous ; aucun bouton. Le minuteur du vélo (.salle-ech-minuteur) reste une carte. */
+.salle .salle-repos:not(.salle-ech-minuteur) {
+  position: fixed; inset: 0; z-index: 9998; margin: 0; border-radius: 0;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; text-align: center;
+  padding: calc(24px + env(safe-area-inset-top, 0px)) 24px calc(24px + env(safe-area-inset-bottom, 0px));
+}
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-haut { display: flex; flex-direction: column; align-items: center; gap: 22px; width: 100%; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-gauche { align-items: center; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-titre { font-size: 16px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-temps { font-size: clamp(112px, 38vw, 240px); margin-top: 6px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-bouton.salle-mini { min-height: 56px; min-width: 96px; font-size: 18px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-suite { font-size: 18px; font-weight: 650; max-width: 30ch; }
+/* 2.38.1 : avant un nouvel exercice, sa charge et ses séries en gros (« 8 kg × 13 · 2 séries »). */
+.salle-suite-cible { grid-column: 1 / -1; margin-top: 6px; font-size: 30px; font-weight: 800; line-height: 1.15; letter-spacing: -0.02em; color: var(--salle-minuteur-texte); font-variant-numeric: tabular-nums; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-jauge { width: min(100%, 420px); height: 12px; margin-top: 0; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-consigne { max-width: 420px; text-align: left; }
+/* Pendant le repos avant un nouvel exercice : sa petite animation, centrée sous « Ensuite : … ». */
+/* 2.34.0 : son réglage de la machine, dans l'aide. */
+.salle .salle-mon-reglage { margin: 8px 0 10px; }
+.salle .salle-mon-reglage input { width: 100%; margin-top: 4px; }
+.salle .salle-repos .salle-anim-suivant { grid-column: 1 / -1; width: 132px; max-width: 132px; margin: 2px auto 0; }
+/* Pendant le repos : la question en attente et les repères du geste de la série qui vient. */
+/* 2.14.0 : lu à bout de souffle : 2 à 5 mots par ligne, en gros, une icône devant (✓ à faire, ✕ à éviter), pas de puce. */
+.salle .salle-repos .salle-repos-reperes { width: min(100%, 420px); margin: 0; padding: 14px 16px; border-radius: 16px; background: var(--salle-minuteur-bouton); color: var(--salle-minuteur-texte); list-style: none; text-align: left; display: flex; flex-direction: column; gap: 9px; }
+.salle .salle-repos .salle-repos-reperes .salle-repere { display: flex; align-items: flex-start; gap: 12px; margin: 0; font-size: 18px; font-weight: 650; line-height: 1.25; letter-spacing: -0.01em; }
+.salle .salle-repos .salle-repos-reperes .salle-repere::marker { content: none; }
+.salle .salle-repos .salle-repos-reperes .salle-repere > .salle-ic { margin-top: 2px; color: var(--salle-minuteur-lime); --icon-size: 20px; }
+.salle .salle-repos .salle-repos-reperes .salle-repere-texte strong { font-weight: 800; }
+.salle .salle-repos .salle-repos-reperes .salle-repere-sentir { color: var(--salle-minuteur-lime); }
+.salle .salle-repos .salle-repos-reperes .salle-repere-evite { font-weight: 550; color: rgba(244, 246, 248, 0.72); }
+.salle .salle-repos .salle-repos-reperes .salle-repere-evite > .salle-ic { color: rgba(244, 246, 248, 0.55); }
+.salle .salle-repos > .salle-carte { width: min(100%, 420px); text-align: left; }
+.salle-repos-bientot { box-shadow: var(--salle-ombre-forte), 0 0 0 2px var(--salle-minuteur-lime) inset; }
+.salle .salle-repos-bientot .salle-repos-temps { color: var(--salle-minuteur-lime); }
+/* À 0 : la carte devient lime pleine, « C'est reparti » en noir, pendant 5 s. */
+.salle-repos-fini { background: var(--salle-accent-fond); color: var(--salle-sur-accent); box-shadow: 0 10px 28px -8px var(--salle-accent-lueur); }
+.salle .salle-repos-fini .salle-repos-titre, .salle .salle-repos-fini .salle-repos-temps, .salle .salle-repos-fini .salle-suite, .salle .salle-repos-fini .salle-suite-cible { color: var(--salle-sur-accent); }
+.salle .salle-repos-fini .salle-bouton.salle-mini { background: rgba(16, 20, 10, 0.1); color: var(--salle-sur-accent); }
+.salle-repos-fini .salle-repos-jauge { background: rgba(16, 20, 10, 0.14); }
+.salle-repos-fini .salle-repos-record { background: rgba(16, 20, 10, 0.1); color: var(--salle-sur-accent); }
+/* 2.36.3 : à 0, sur le fond lime, les repères du geste et les consignes passent en sombre : la fin du repos se lit d'un coup d'œil. */
+.salle .salle-repos-fini .salle-repos-reperes, .salle .salle-repos-fini .salle-consigne { background: rgba(16, 20, 10, 0.1); border-color: rgba(16, 20, 10, 0.22); color: var(--salle-sur-accent); }
+.salle .salle-repos-fini .salle-repos-reperes .salle-repere > .salle-ic, .salle .salle-repos-fini .salle-repos-reperes .salle-repere-sentir, .salle .salle-repos-fini .salle-repos-reperes .salle-repere-evite, .salle .salle-repos-fini .salle-repos-reperes .salle-repere-evite > .salle-ic, .salle .salle-repos-fini .salle-consigne * { color: var(--salle-sur-accent); }
+.salle .salle-repos-fini .salle-repos-reperes .salle-repere-evite { opacity: 0.7; }
+
+/* ── L'échauffement : le minuteur de 5 min (un bouton) a le style du repos, mais reste dans la carte ── */
+.salle .salle-ech-minuteur { position: static; display: block; width: 100%; height: auto; margin: 12px 0 4px; padding: 14px 16px 16px; text-align: left; border: none; border-radius: 20px; cursor: pointer; font: inherit; white-space: normal; box-shadow: var(--salle-ombre); }
+/* Avant le vélo : la gourde, la musique, pas d'étirement long. */
+.salle .salle-ech-preparer { margin: 10px 0 12px; font-size: 14px; color: var(--salle-texte-doux); }
+.salle .salle-ech-preparer strong { color: var(--salle-texte); }
+.salle .salle-ech-minuteur .salle-repos-titre { margin-bottom: 2px; }
+.salle .salle-ech-minuteur .salle-repos-jauge { margin-top: 14px; }
+.salle .salle-ech-minuteur:active { transform: scale(0.98); }
+@media (hover: hover) { .salle .salle-ech-minuteur:hover { background: var(--salle-minuteur-fond); box-shadow: var(--salle-ombre-forte); } }
+
+/* ── La carte de l'exercice : le rang et l'étage en petit, le nom en gros et gras, le réglage en étiquette ── */
+.salle .salle-exo { padding: 16px 18px 18px; }
+.salle .salle-exo h3 { font-size: 27px; line-height: 1.08; letter-spacing: -0.03em; margin: 4px 0 6px; }
+.salle-exo-tete { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin: -2px 0 4px; min-height: 32px; }
+.salle .salle-exo-rang { display: inline-flex; align-items: center; flex-wrap: wrap; gap: 4px 8px; min-width: 0; color: var(--salle-texte-doux); font-size: 12px; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; }
+.salle-exo-sep { display: none; }   /* l'étiquette de l'étage sépare déjà ; le « · » reste pour un lecteur d'écran */
+.salle .salle-exo-etage { padding: 3px 10px; border: none; background: var(--salle-carte-2); color: var(--salle-texte); font-size: 12px; font-weight: 750; letter-spacing: 0; text-transform: none; }
+.salle .salle-exo-plus { flex: none; min-width: var(--salle-cible); padding: 4px 8px; background: var(--salle-carte-2); }
+.salle .salle-exo-plus.salle-a-ic .salle-repli { display: none; }   /* l'icône « … » suffit ; sans icône, le texte « … » reste */
+.salle-exo-haut { display: flex; gap: 14px; align-items: flex-start; }
+/* L'étiquette « Réglage : … », en tête de l'aide ouverte (2.14.4) : une pastille, son icône dans un carré arrondi. */
+.salle .salle-reglage { display: flex; align-items: flex-start; gap: 10px; width: fit-content; max-width: 100%; margin: 8px 0 2px; padding: 8px 14px 8px 10px; border-radius: 14px; background: var(--salle-carte-2); color: var(--salle-texte); font-size: 14px; font-weight: 650; line-height: 1.35; overflow-wrap: anywhere; }
+.salle .salle-reglage .salle-ic { flex: none; width: 24px; height: 24px; margin-top: -2px; border-radius: 8px; background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: 14px; }
+.salle-exo-texte { flex: 1; min-width: 0; }
+/* L'image du geste, petite à droite du nom : coins arrondis, sans cadre. */
+.salle .salle-exo .salle-anim-mini { width: 96px; max-width: 96px; margin-top: 4px; }
+.salle .salle-exo .salle-anim-cadre { border: none; border-radius: 14px; background: var(--salle-carte-2); }
+/* Une supersérie : un trait lime sur le bord gauche de la carte (la carte le dit aussi en mots). */
+.salle .salle-exo-groupe { box-shadow: inset 4px 0 0 var(--salle-accent-fond), var(--salle-ombre); }
+.salle .salle-superserie { margin: 2px 0 4px; padding: 5px 12px; white-space: normal; border: none; border-radius: 12px; max-width: 100%; background: var(--salle-accent-doux); color: var(--salle-accent); font-size: 13px; }
+.salle .salle-superserie .salle-ic { --icon-size: 14px; color: inherit; }
+
+/* La cible en gros (« 20 kg × 12 ») : les nombres énormes en chiffres arrondis, les unités plus petites et douces ;
+   l'explication sur une ligne (un toucher l'ouvre), l'effort de la série. */
+.salle-cible-gros { display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 8px; font-family: var(--salle-chiffres); font-variant-numeric: tabular-nums; font-weight: 800; font-size: 26px; line-height: 1; letter-spacing: -0.02em; color: var(--salle-texte); }
+.salle-exo-cible { margin: 14px 0 6px; }
+/* 2.37.0 : les disques à mettre de chaque côté, sous la charge. */
+.salle .salle-cible-disques { margin: 6px 0 0; font-size: 16px; font-weight: 700; letter-spacing: -0.01em; color: var(--salle-texte); font-variant-numeric: tabular-nums; }
+/* 2.36.3 : le réglage à avoir (l'angle du banc), juste sous la charge, en gros : il compte autant qu'elle. */
+.salle .salle-cible-reglage { display: flex; align-items: flex-start; gap: 10px; margin: 8px 0 2px; font-size: 20px; font-weight: 750; line-height: 1.2; letter-spacing: -0.01em; color: var(--salle-texte); }
+.salle .salle-cible-reglage > .salle-ic { flex: none; width: 26px; height: 26px; margin-top: -1px; border-radius: 8px; background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: 15px; }
+.salle-cible-chiffre { font-size: clamp(50px, 16vw, 66px); letter-spacing: -0.035em; line-height: 0.95; }
+/* 2.38.7 (demande : le poids et les répétitions plus visibles) : les chiffres prennent toute la largeur de la carte sur une
+   ligne (--n : leur largeur en chiffres, posée par cibleGros ; un chiffre fait 0,63 de la taille, compté 0,66 ; 80 px pour
+   « kg », « × » et les espaces, mesurés à 70), de 56 à 112 px.
+   Sans les unités « cqw » (iOS 15) : la taille d'avant, juste au-dessus. */
+.salle-cible-gros { container-type: inline-size; }
+.salle-cible-chiffre { font-size: clamp(56px, calc((100cqw - 80px) / (0.66 * var(--n, 4))), 112px); }
+.salle-cible-unite { color: var(--salle-texte-doux); font-weight: 750; }
+.salle-explication { margin: 10px 0 0; color: var(--salle-texte-doux); font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+.salle-explication-ouverte { white-space: normal; overflow: visible; }
+.salle-effort { margin: 6px 0 0; font-size: 15px; font-weight: 700; letter-spacing: -0.01em; color: var(--salle-texte); }
+/* Le tempo, avant la 1re série de ses 3 premières séances : une ligne, le geste en gras. */
+/* Les lignes du geste : le tempo, jusqu'où aller (.salle-amplitude), la fin de la dernière série (.salle-pour-finir). */
+.salle-tempo, .salle-amplitude, .salle-pour-finir { margin: 8px 0 0; font-size: 14px; line-height: 1.35; color: var(--salle-texte-doux); }
+.salle .salle-tempo strong, .salle .salle-amplitude strong, .salle .salle-pour-finir strong { color: var(--salle-texte); }
+.salle .salle-effort.salle-a-ic { display: flex; align-items: center; gap: 8px; }
+.salle .salle-effort .salle-ic { width: 26px; height: 26px; border-radius: 50%; background: var(--salle-accent-fond); color: var(--salle-sur-accent); --icon-size: 15px; }
+.salle .salle-effort .salle-ic svg, .salle .salle-exo-fin h3 .salle-ic svg { stroke-width: 3; }
+.salle .salle-exo > .salle-anim-cle { margin: 6px 0 2px; color: var(--salle-texte-doux); font-size: 14px; font-weight: 600; }
+
+/* Le menu « … » : les actions rares, une par ligne, dans un creux arrondi. */
+.salle-actions { display: flex; flex-direction: column; gap: 2px; margin: 12px 0; padding: 6px; border: none; border-radius: 18px; background: var(--salle-carte-2); }
+.salle-actions > strong { margin: 6px 8px 2px; }
+.salle-actions .salle-choix { margin: 4px 0; }
+.salle .salle-actions .salle-choix .salle-bouton { background: var(--salle-carte); }
+.salle .salle-actions-ligne { width: 100%; justify-content: flex-start; text-align: left; background: transparent; border-color: transparent; border-radius: 12px; font-weight: 650; }
+.salle .salle-actions-ligne.salle-a-ic { display: flex; gap: 12px; }
+.salle .salle-actions-ligne .salle-ic { color: var(--salle-texte-doux); }
+.salle .salle-actions > .salle-mini { align-self: flex-start; background: var(--salle-carte); }
+
+/* ── Les séries d'approche : au-dessus du tableau, plus petites, en orange (« É »), cochées d'un toucher ── */
+
+/* ── Le tableau des séries : n° · la dernière fois · aujourd'hui · état ──
+   Fait : fond lime doux, coche noire dans un rond lime. Record : fond or doux, trophée dans un rond or. En cours : la grande
+   ligne bordée de lime, son numéro dans un rond lime, les compteurs dessous. À venir : pâle, un rond en pointillés. */
+.salle-series { display: flex; flex-direction: column; gap: 6px; margin: 14px 0 4px; }
+.salle .salle-serie {
+  display: grid; grid-template-columns: 30px minmax(0, 0.9fr) minmax(0, 1.5fr) 30px; align-items: center; column-gap: 10px;
+  width: 100%; min-height: 48px; height: auto; margin: 0; padding: 8px 10px;
+  border: 1.5px solid transparent; border-radius: 16px; box-shadow: none; font: inherit; text-align: left; white-space: normal; background: transparent;
+}
+.salle button.salle-serie { cursor: pointer; -webkit-tap-highlight-color: transparent; transition: transform var(--salle-vite) ease, background-color 0.15s ease; }
+.salle button.salle-serie:active { transform: scale(0.98); }
+.salle .salle-series-sans-avant .salle-serie { grid-template-columns: 30px minmax(0, 1fr) 30px; }   /* première fois : pas de colonne « avant » */
+.salle-series-sans-avant .salle-serie-avant { display: none; }
+/* La carte de l'exercice, de haut en bas : l'étape (« Série 1 sur 2 ») en petit, la cible en gros, une ligne d'effort ; le geste
+   (le tempo, ce qu'il faut sentir) dans un bloc à part ; le tableau ; les consignes vues une fois tout en bas. */
+.salle .salle-exo-etape { margin: 0 0 2px; font-size: 12px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--salle-accent); }
+.salle .salle-exo-geste { display: flex; flex-direction: column; gap: 4px; margin: 12px 0 0; padding: 10px 0 12px; border-top: 1px solid var(--salle-bord); border-bottom: 1px solid var(--salle-bord); }
+/* L'aide ouverte, dans le bloc du geste (entre les deux traits) : la fiche, le conseil du coach, « Fermer l'aide ». */
+.salle .salle-exo-geste .salle-exo-aide { display: flex; flex-direction: column; align-items: flex-start; gap: 8px; margin-top: 8px; }
+.salle .salle-exo-geste .salle-exo-aide > * { margin: 0; }
+.salle .salle-exo-geste .salle-exo-aide > .salle-fiche-champs { align-self: stretch; }
+/* Le deuxième trait ne colle pas à ce qui suit (la bulle verte, ou le tableau des séries). */
+.salle .salle-exo-geste + * { margin-top: 12px; }
+.salle .salle-exo-geste > * { margin: 0; }
+.salle .salle-exo-geste .salle-aide-bouton { align-self: flex-start; margin-top: 4px; }
+.salle .salle-exo-geste .salle-anim-cle { text-align: left; font-weight: 500; color: var(--salle-texte-doux); }
+/* Une série légère : une ligne comme les autres, la flamme à la place du numéro. */
+.salle .salle-serie-legere .salle-serie-n .salle-ic { --icon-size: 15px; }
+/* Le numéro dans un rond (le « N° » de l'en-tête reste nu). */
+.salle-serie-n { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 50%; font-family: var(--salle-chiffres); font-variant-numeric: tabular-nums; font-size: 14px; font-weight: 800; color: var(--salle-texte-doux); background: var(--salle-carte-2); }
+/* « La dernière fois » : --salle-texte-doux (≥ 4,5:1), plus petit et moins gras : discret, mais lisible. */
+.salle-serie-avant { min-width: 0; color: var(--salle-texte-doux); font-weight: 500; font-size: 14px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.salle-serie-val { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 6px; min-width: 0; font-size: 17px; font-weight: 800; letter-spacing: -0.01em; color: var(--salle-texte); }
+.salle-serie-chiffres { white-space: nowrap; }
+.salle-serie-etat { display: inline-flex; align-items: center; justify-content: center; justify-self: end; width: 30px; height: 30px; border-radius: 50%; }
+.salle .salle-serie-etat .salle-ic { --icon-size: 16px; }
+.salle .salle-serie-etat .salle-ic svg { stroke-width: 3; }
+.salle-serie-saisie, .salle-serie-detail { grid-column: 1 / -1; min-width: 0; }
+/* « Corriger », sous la dernière série notée : un lien discret ; la correction : les mêmes compteurs que « Maintenant ». */
+.salle .salle-serie-corriger { margin-top: 4px; }
+.salle .salle-serie-corriger .salle-lien { font-size: 13px; }
+.salle .salle-serie-correction .salle-choix { margin-top: 10px; }
+.salle-serie-detail { margin-top: 6px; font-size: 13px; font-weight: 600; color: var(--salle-texte-doux); }
+/* L'en-tête du tableau : petit, en capitales, doux ; ni rond ni fond. */
+.salle .salle-series-tete { min-height: 0; padding-top: 0; padding-bottom: 0; }
+.salle-series-tete .salle-serie-n, .salle-series-tete .salle-serie-val, .salle-series-tete .salle-serie-avant { height: auto; background: none; color: var(--salle-texte-doux); font-family: inherit; font-weight: 750; font-size: 11px; letter-spacing: 0.07em; text-transform: uppercase; }
+/* Faite : fond lime doux, la coche dans un rond lime ; « +1 », « = » ou « nouvelle charge » en pastille. */
+.salle .salle-serie-faite { background: var(--salle-accent-doux); border-color: transparent; color: var(--salle-texte); }
+.salle .salle-serie-faite .salle-serie-n { background: transparent; color: var(--salle-accent); }
+.salle .salle-serie-faite .salle-serie-val { color: var(--salle-texte); }
+.salle-serie-faite .salle-serie-etat { background: var(--salle-accent-fond); color: var(--salle-sur-accent); }
+.salle .salle-serie-faite .salle-serie-val .salle-badge { padding: 2px 9px; border: 1.5px solid var(--salle-accent-moyen); background: transparent; color: var(--salle-accent); font-family: var(--salle-titre); font-size: 12px; font-weight: 750; }
+/* Record : fond or doux bordé d'or, « Record » sur l'or plein, le trophée dans un rond or, ce qui est battu en dessous. */
+.salle .salle-serie-record { background: var(--salle-record-doux); border-color: var(--salle-record-fond); }
+.salle .salle-serie-record .salle-serie-n { color: var(--salle-record); }
+.salle .salle-serie-record .salle-serie-val .salle-badge { border: none; background: var(--salle-record-fond); color: var(--salle-sur-record); }
+.salle .salle-serie-record .salle-serie-val .salle-badge .salle-ic { display: none; }   /* le trophée est déjà dans le rond */
+.salle .salle-serie-record .salle-serie-etat { background: var(--salle-record-fond); color: var(--salle-sur-record); }
+.salle .salle-serie-record .salle-serie-etat .salle-ic svg { stroke-width: 2.5; }
+.salle-serie-record .salle-serie-detail { color: var(--salle-texte); font-weight: 650; }
+.salle-serie-eclat { animation: salle-eclat 260ms ease-out; }
+@keyframes salle-eclat { 0% { transform: scale(0.97); } 60% { transform: scale(1.02); } 100% { transform: scale(1); } }
+/* En cours : la grande ligne bordée de lime, avec une lueur ; « MAINTENANT » ; les compteurs − / + de 56 px dessous. */
+.salle .salle-serie-courante { padding: 10px 12px 12px; border: 2px solid var(--salle-accent-fond); background: var(--salle-carte); box-shadow: 0 10px 26px -12px var(--salle-accent-lueur); }
+.salle .salle-serie-courante .salle-serie-n { background: var(--salle-accent-fond); color: var(--salle-sur-accent); }
+.salle .salle-serie-courante .salle-serie-val { color: var(--salle-accent); font-family: var(--salle-titre); font-size: 13px; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+.salle-serie-saisie .salle-compteur { margin: 8px 0 0; }
+.salle .salle-serie-saisie .salle-champ { height: 60px; font-size: 34px; background: var(--salle-carte-2); }
+.salle .salle-serie-saisie .salle-pm { min-height: 60px; }
+.salle .salle-serie-courante .salle-serie-detail { margin-top: 8px; }
+/* À venir : pâles, la cible en petit, un rond en pointillés (sera coché). */
+.salle .salle-serie-avenir .salle-serie-val { color: var(--salle-pale); font-weight: 600; font-size: 15px; }
+.salle .salle-serie-avenir .salle-serie-n { background: transparent; border: 1.5px solid var(--salle-bord); color: var(--salle-pale); }
+.salle-serie-avenir .salle-serie-etat::before { content: ""; width: 22px; height: 22px; border-radius: 50%; border: 2px dashed color-mix(in srgb, var(--salle-pale) 55%, transparent); }
+/* Approche : plus petite, orange ; « É » à la place du numéro ; cochée = la coche lime, comme une série faite. */
+.salle-serie-coche { display: inline-block; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--salle-approche); }
+.salle .salle-serie-ajout { align-self: flex-start; margin-top: 6px; }
+
+/* ── Le chrono du gainage : un très grand chiffre qui monte, une jauge épaisse, un repère à la cible ── */
+.salle-chrono { margin: 8px 0 2px; }
+.salle-chrono-haut { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
+.salle .salle-chrono-haut > .salle-petit { display: inline-flex; padding: 5px 12px; border-radius: 999px; background: var(--salle-carte-2); color: var(--salle-texte); font-weight: 700; font-variant-numeric: tabular-nums; }
+.salle .salle-chrono-haut > .salle-petit .salle-ic { color: var(--salle-accent); --icon-size: 14px; }
+.salle .salle-chrono-temps { font-family: var(--salle-chiffres); font-variant-numeric: tabular-nums; font-size: clamp(54px, 17vw, 72px); font-weight: 800; line-height: 1; letter-spacing: -0.03em; color: var(--salle-texte); }
+.salle-chrono-jauge { position: relative; height: 14px; margin: 12px 0 10px; border-radius: 999px; background: var(--salle-carte-2); }
+.salle-chrono-plein { height: 100%; width: 100%; border-radius: 999px; background: var(--salle-accent-fond); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--salle-accent) 30%, transparent); transform-origin: left center; transform: scaleX(0); transition: transform 0.5s linear; }
+.salle-chrono-repere { position: absolute; left: 80%; top: -5px; bottom: -5px; width: 4px; margin-left: -2px; border-radius: 2px; background: var(--salle-texte); }
+.salle-chrono-atteint .salle-chrono-plein { box-shadow: 0 0 16px var(--salle-accent-lueur); }
+.salle .salle-chrono-atteint .salle-chrono-temps { color: var(--salle-accent); }
+.salle-chrono .salle-bouton { margin-top: 6px; }
+
+/* ── « Il t'en restait combien ? » et la fin de la séance ── */
+.salle .salle-reserve { border: 2px solid var(--salle-accent-fond); box-shadow: 0 10px 26px -14px var(--salle-accent-lueur), var(--salle-ombre); }
+.salle .salle-reserve > strong { display: block; font-family: var(--salle-titre); font-size: 17px; font-weight: 800; letter-spacing: -0.015em; line-height: 1.25; }
+.salle-reserve .salle-choix { margin-bottom: 0; }
+.salle-reserve .salle-choix > .salle-bouton { flex: 1 1 auto; }
+.salle .salle-exo-fin h3 .salle-ic { width: 32px; height: 32px; border-radius: 50%; background: var(--salle-accent-fond); color: var(--salle-sur-accent); --icon-size: 18px; }
+.salle .salle-exo-fin > strong.salle-a-ic { margin-top: 8px; }
+
+/* ── La liste des exercices (ordre libre), le repère au changement d'étage, les superséries reliées ── */
+.salle .salle-exo-liste { padding: 14px 12px 10px; }
+.salle-exo-liste-titre { margin: 2px 6px 6px; font-family: var(--salle-titre); font-size: 18px; font-weight: 800; letter-spacing: -0.02em; }
+.salle .salle-exo-liste .salle-rang { min-height: 48px; margin: 2px 0; padding: 10px 12px; border-radius: 14px; font-weight: 650; }
+.salle .salle-exo-liste .salle-rang .salle-petit { font-family: var(--salle-chiffres); font-variant-numeric: tabular-nums; font-weight: 700; }
+/* Le détail (« Étage 1 · 1 / 3 », « à la fin ») reste du texte : la règle du chevron dans un rond (guide et notes,
+   66-notes.css, « .salle-rang > span:last-child ») ne vaut pas ici. */
+.salle .salle-exo-liste .salle-rang > span.salle-petit:last-child { display: inline; width: auto; height: auto; border-radius: 0; background: none; color: var(--salle-texte-doux); font-size: 13px; line-height: 1.3; text-align: right; }
+.salle .salle-exo-liste .salle-courant { border: 2px solid var(--salle-accent-fond); background: var(--salle-accent-doux); font-weight: 800; }
+.salle .salle-exo-liste .salle-fini { color: var(--salle-texte-doux); font-weight: 500; }
+/* Les deux exercices d'une supersérie : le maillon lime devant le nom (le trait sur le bord suivait mal l'arrondi). */
+.salle .salle-superserie-rang .salle-ic { --icon-size: 15px; color: var(--salle-accent); }
+.salle .salle-exo-liste .salle-rang > span > .salle-ic { margin-right: 2px; }
+.salle-repere { display: flex; align-items: center; gap: 8px; margin: 8px 6px 4px; padding: 0; font-size: 12px; font-weight: 750; letter-spacing: 0.02em; color: var(--salle-accent); }
+.salle .salle-repere .salle-ic { width: 22px; height: 22px; border-radius: 50%; background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: 13px; }
+.salle-repere::after { content: ""; flex: 1; height: 1px; background: var(--salle-bord); }
+
+/* ── Le gros bouton, collé en bas, toute la largeur, au-dessus de la zone sûre de l'iPhone ──
+   Il est dans le flux (sticky) : en bas de l'écran pendant qu'on fait défiler, et sous le dernier élément au bout de la
+   page. Il ne cache donc jamais la fin du contenu, et il ne bouge plus quand une carte s'ajoute au-dessus.
+   La place que D garde sous le dernier élément (.salle-fin, pour la barre d'Obsidian, cachée pendant la séance) et la
+   marge du bas de la page ne servent plus ici : le bouton porte lui-même la zone sûre.
+   Un fond translucide et flou (le contenu passe dessous sans trait), le bouton lime de 60 px avec sa lueur. */
+.salle .salle-barre-bas {
+  position: sticky; bottom: 0; z-index: 4;
+  margin: 12px calc(-1 * var(--size-4-4, 16px)) 0;
+  padding: 10px var(--size-4-4, 16px) calc(var(--size-4-2, 8px) + var(--salle-zone-sure));
+  background: color-mix(in srgb, var(--salle-fond) 84%, transparent);
+  -webkit-backdrop-filter: saturate(1.6) blur(18px); backdrop-filter: saturate(1.6) blur(18px);
+  border-top: 1px solid var(--salle-bord);
+}
+.salle .salle-barre-bas .salle-barre-action { display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; min-height: 56px; margin: 0; padding: 14px 18px; border-radius: 20px; font-size: 19px; letter-spacing: -0.02em; }
+.salle .salle-barre-bas .salle-barre-action .salle-ic { --icon-size: 22px; }
+.salle .salle-barre-bas .salle-barre-action .salle-ic svg { fill: none; stroke-width: 3; }
+.salle .salle-barre-action:focus-visible { outline: 2px solid var(--salle-accent); outline-offset: 2px; }
+.salle-barre-texte { min-width: 0; overflow-wrap: anywhere; font-variant-numeric: tabular-nums; }
+.salle .salle-barre-bas ~ .salle-fin { height: 0; }
+body .salle:has(> .salle-barre-bas) { padding-bottom: 0; }
+/* iPhone : clavier ouvert (saisie au clavier), la barre se range pour ne pas couvrir le champ ; elle revient à la fermeture. */
+.is-mobile .salle:has(.salle-champ:focus) > .salle-barre-bas { display: none; }
+@media (max-width: 400px) {
+  .salle .salle-barre-bas { margin-left: calc(-1 * var(--size-4-3, 12px)); margin-right: calc(-1 * var(--size-4-3, 12px)); padding-left: var(--size-4-3, 12px); padding-right: var(--size-4-3, 12px); }
+  .salle .salle-exo { padding: 14px 14px 16px; }
+  .salle .salle-repos { padding: 12px 14px 14px; }
+  .salle .salle-repos .salle-bouton.salle-mini { min-width: 60px; padding: 6px 10px; }
+  .salle .salle-serie { column-gap: 8px; padding-left: 8px; padding-right: 8px; }
+}
+
+/* ── Moins de mouvement si l'appareil le demande ── */
+@media (prefers-reduced-motion: reduce) {
+  .salle-serie-eclat { animation: none; }
+  .salle-repos, .salle-repos-temps, .salle-chrono-plein, .salle-repos-jauge-pleine, .salle-barre-pleine, .salle button.salle-serie { transition: none; }
+  .salle button.salle-serie:active, .salle .salle-ech-minuteur:active { transform: none; }
+}
+/* 2.38.5 : pendant une séance ou en plein écran, la barre et l'en-tête d'Obsidian sont cachés : la vue monte jusque sous
+   l'encoche (Obsidian gardait la place de son en-tête : une bande noire). */
+.is-phone .mod-root .workspace-leaf-content.salle-sans-barre { --view-top-spacing: calc(var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) + 8px); }
+
+/* ── 2.38.7 : tout plus gros pendant la séance (demande : pendant l'effort la vue baisse, c'est dur de bien voir ; « pour
+   tout ») : chaque texte de la séance gagne 2 à 4 px ; les unités de la cible (« kg », « × ») restent petites, les chiffres
+   prennent la largeur (plus haut). ── */
+.salle .salle-exo-rang, .salle .salle-exo-etage { font-size: 14px; }
+.salle .salle-exo h3 { font-size: 30px; }
+.salle .salle-exo-etape { font-size: 16px; }
+.salle-cible-gros { font-size: 28px; }
+.salle .salle-cible-disques { font-size: 19px; }
+.salle .salle-cible-reglage { font-size: 22px; }
+.salle .salle-reglage { font-size: 16px; }
+.salle .salle-superserie { font-size: 15px; }
+.salle .salle-explication { font-size: 17px; }
+.salle .salle-effort { font-size: 18px; }
+.salle .salle-tempo, .salle .salle-amplitude, .salle .salle-pour-finir { font-size: 17px; }
+.salle .salle-exo > .salle-anim-cle { font-size: 16px; }
+.salle .salle-serie-n, .salle .salle-serie-avant { font-size: 17px; }
+.salle .salle-serie-val { font-size: 21px; }
+.salle .salle-series-tete .salle-serie-n, .salle .salle-series-tete .salle-serie-val, .salle .salle-series-tete .salle-serie-avant { font-size: 13px; }
+.salle .salle-serie-faite .salle-serie-val .salle-badge { font-size: 14px; }
+.salle .salle-serie-detail, .salle .salle-serie-corriger .salle-lien { font-size: 16px; }
+.salle .salle-serie-courante .salle-serie-val { font-size: 15px; }
+.salle .salle-serie-avenir .salle-serie-val { font-size: 19px; }
+.salle .salle-serie-saisie .salle-champ { font-size: 40px; }
+.salle .salle-reserve > strong { font-size: 20px; }
+.salle .salle-exo-liste-titre { font-size: 20px; }
+.salle .salle-exo-liste .salle-rang > span.salle-petit:last-child { font-size: 15px; }
+.salle .salle-repere { font-size: 14px; }
+.salle .salle-barre-bas .salle-barre-action { font-size: 21px; }
+.salle .salle-repos .salle-consigne { font-size: 16px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-suite { font-size: 20px; }
+.salle .salle-repos .salle-repos-reperes .salle-repere { font-size: 20px; }
+.salle .salle-suite-cible { font-size: 36px; }/* Sur deux lignes (« 100 kg » puis « × 10+ ») : la taille se règle sur le plus long des deux nombres. */
+.salle-cible-saut { flex-basis: 100%; height: 0; }
+.salle-cible-deux { row-gap: 2px; }
+.salle-cible-deux .salle-cible-chiffre { font-size: clamp(56px, calc((100cqw - 50px) / (0.66 * var(--n, 3))), 112px); }
+/* 2.38.8 (demande : gros, mais lisible ; sinon aucun intérêt) : sur la carte de l'exercice, plus de petit texte gris : « Tu
+   dois sentir », le tempo et l'amplitude en blanc et à 17 px, « Aide » et la bulle verte à 17 px. */
+.salle .salle-exo-geste .salle-anim-cle, .salle .salle-exo > .salle-anim-cle { font-size: 17px; font-weight: 600; color: var(--salle-texte); }
+.salle .salle-exo .salle-tempo, .salle .salle-exo .salle-amplitude, .salle .salle-exo .salle-pour-finir { color: var(--salle-texte); }
+.salle .salle-exo .salle-aide-bouton { font-size: 17px; }
+.salle .salle-exo .salle-consigne { font-size: 17px; }
+/* 2.38.11 (demande : épurer l'écran des séries) : l'aide fermée, son bouton seul, sans les traits du bloc du geste. */
+.salle .salle-exo-geste.salle-exo-geste-seul { border-top: none; border-bottom: none; padding-top: 0; padding-bottom: 0; margin-top: 6px; margin-bottom: 6px; }
+/* 2.38.12 (demande : un peu moins gros, que la carte tienne à l'écran) : les chiffres jusqu'à 88 px, le titre à 26 px. */
+.salle-cible-chiffre { font-size: clamp(56px, calc((100cqw - 80px) / (0.66 * var(--n, 4))), 88px); }
+.salle-cible-deux .salle-cible-chiffre { font-size: clamp(56px, calc((100cqw - 50px) / (0.66 * var(--n, 3))), 88px); }
+.salle .salle-exo h3 { font-size: 26px; }
+/* 2.38.14 (demande : la carte entière à l'écran, coins arrondis compris) : « Aide » dans l'en-tête ; lignes du tableau, saisie
+   et marges plus serrées ; chiffres jusqu'à 80 px. */
+.salle-exo-tete-boutons { display: flex; align-items: center; gap: 10px; flex: none; }
+.salle .salle-exo-tete .salle-aide-bouton { margin: 0; font-size: 16px; }
+.salle .salle-exo { padding: 12px 16px 12px; }
+.salle .salle-exo > .salle-exo-aide { margin: 8px 0 10px; }
+.salle-exo-cible { margin: 8px 0 4px; }
+.salle .salle-exo-geste.salle-exo-geste-seul { margin-top: 4px; margin-bottom: 0; }
+.salle-series { gap: 3px; margin: 10px 0 0; }
+.salle .salle-serie { min-height: 40px; padding-top: 5px; padding-bottom: 5px; }
+.salle .salle-series-tete { min-height: 0; }
+.salle-serie-saisie .salle-compteur { margin: 6px 0 0; }
+.salle .salle-serie-saisie .salle-champ { height: 48px; font-size: 34px; }
+.salle .salle-serie-saisie .salle-pm { min-height: 48px; }
+.salle-cible-chiffre { font-size: clamp(56px, calc((100cqw - 80px) / (0.66 * var(--n, 4))), 80px); }
+.salle-cible-deux .salle-cible-chiffre { font-size: clamp(56px, calc((100cqw - 50px) / (0.66 * var(--n, 3))), 80px); }
+@media (max-width: 400px) { .salle .salle-exo { padding: 12px 14px 12px; } }
+/* 2.38.15 (la carte entière à l'écran) : en-tête, image, ligne « Maintenant », saisie, en-tête du tableau et gros bouton un
+   peu plus serrés. */
+.salle .salle-exo-tete { min-height: 0; margin: -4px 0 2px; }
+.salle .salle-exo-tete .salle-exo-plus { min-width: 38px; min-height: 38px; height: 38px; padding: 2px 6px; }
+.salle .salle-exo .salle-anim-mini { width: 84px; max-width: 84px; margin-top: 2px; }
+.salle .salle-serie-saisie .salle-champ { height: 44px; }
+.salle .salle-serie-saisie .salle-pm { min-height: 44px; width: 52px; }
+.salle-serie-saisie .salle-compteur { margin: 4px 0 0; }
+.salle .salle-series-tete .salle-serie-n, .salle .salle-series-tete .salle-serie-val, .salle .salle-series-tete .salle-serie-avant { font-size: 12px; }
+.salle .salle-serie { min-height: 38px; }
+.salle .salle-barre-bas .salle-barre-action { min-height: 52px; padding-top: 12px; padding-bottom: 12px; }
+/* 2.38.17 (demande : « je veux que ça prenne la place ») : sur téléphone, la carte de l'exercice prend tout l'écran, de
+   l'encoche au gros bouton (99 px : les marges, le gros bouton et sa barre) ; le tableau des séries descend en bas de la
+   carte, près du pouce. Plus long que l'écran (l'aide ouverte) : elle s'allonge, on fait défiler. */
+.is-mobile .salle .salle-exo { display: flex; flex-direction: column; min-height: calc(100dvh - var(--safe-area-inset-top, env(safe-area-inset-top, 0px)) - env(safe-area-inset-bottom, 0px) - 99px); }
+.is-mobile .salle .salle-exo > .salle-series { margin-top: auto; padding-top: 10px; }
+/* L'espace en plus se partage : la cible (et ce qui la suit) au milieu, le tableau en bas. */
+.is-mobile .salle .salle-exo > .salle-exo-cible { margin-top: auto; }
+/* 2.38.19 (demande : « La séance » monte par-dessus la carte, juste au-dessus, la carte floue derrière, comme le centre de
+   contrôle d'Apple, en verre comme le Liquid Glass) : un panneau qui monte du bas, sur un voile flou. */
+.salle .salle-ouvrir-liste { display: inline-flex; align-items: center; gap: 6px; padding: 0; margin: 0; min-height: 0; border: none; background: none; box-shadow: none; color: inherit; font: inherit; letter-spacing: inherit; text-transform: inherit; text-align: left; cursor: pointer; }
+.salle .salle-ouvrir-liste .salle-ic { --icon-size: 14px; }
+.salle .salle-titre-seance .salle-ouvrir-liste h2 { margin: 0; }
+.salle-panneau-fond { position: fixed; inset: 0; z-index: 9990; display: flex; flex-direction: column; justify-content: flex-end; background: rgba(6, 8, 10, 0.3); -webkit-backdrop-filter: blur(16px) saturate(1.5); backdrop-filter: blur(16px) saturate(1.5); animation: salle-panneau-fondu 220ms ease both; }
+.salle-panneau { max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 24px); overflow-y: auto; padding: 8px 14px calc(14px + env(safe-area-inset-bottom, 0px)); border-radius: 30px 30px 0 0; background: rgba(30, 33, 38, 0.62); -webkit-backdrop-filter: blur(28px) saturate(1.7); backdrop-filter: blur(28px) saturate(1.7); border-top: 1px solid rgba(255, 255, 255, 0.16); box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12); animation: salle-panneau-monte 340ms cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+.theme-light .salle-panneau { background: rgba(255, 255, 255, 0.68); border-top-color: rgba(255, 255, 255, 0.8); }
+.salle-panneau-poignee { width: 40px; height: 5px; margin: 2px auto 8px; border-radius: 3px; background: rgba(255, 255, 255, 0.35); }
+.salle .salle-panneau .salle-carte { background: transparent; border: none; box-shadow: none; padding: 4px 2px; margin: 0; }
+.salle .salle-panneau .salle-bas { margin: 6px 0 0; }
+.salle .salle-panneau .salle-panneau-fermer { width: 100%; margin-top: 10px; }
+@keyframes salle-panneau-monte { from { transform: translateY(100%); } to { transform: none; } }
+@keyframes salle-panneau-fondu { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .salle-panneau, .salle-panneau-fond { animation: none; } }
+/* Le panneau lisible même sans flou (le flou du voile ne passe pas toujours à travers un élément flou) : presque opaque, aux
+   trois quarts de l'écran au plus, la carte floue visible au-dessus. */
+.salle-panneau { max-height: 78dvh; background: rgba(26, 29, 34, 0.9); -webkit-backdrop-filter: none; backdrop-filter: none; }
+.theme-light .salle-panneau { background: rgba(250, 251, 248, 0.92); }
+.salle-panneau-fond { background: rgba(6, 8, 10, 0.38); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); }
+/* 2.38.20 (demande : le bloc des séries immobile, la barre du haut aussi ; une croix pour fermer le panneau) : sur téléphone,
+   pendant une séance, la page ne défile plus : l'en-tête et l'avancement en haut, la carte de l'exercice au milieu (elle seule
+   défile si elle déborde, l'aide ouverte par exemple), le gros bouton en bas. */
+.is-mobile .salle.salle-seance-fixe { display: flex; flex-direction: column; height: 100%; overflow: hidden; padding-bottom: 0; overscroll-behavior: none; }
+.is-mobile .salle.salle-seance-fixe > * { flex: none; }
+.is-mobile .salle.salle-seance-fixe > .salle-exo { flex: 1 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; margin-bottom: 8px; }
+.is-mobile .salle.salle-seance-fixe > .salle-fin { display: none; }
+.is-mobile .salle.salle-seance-fixe > .salle-barre-bas { position: relative; margin-top: 0; }
+.is-mobile .salle .salle-exo { min-height: 0; }
+.salle-panneau { position: relative; }
+.salle .salle-panneau .salle-panneau-croix { position: absolute; top: 10px; right: 12px; z-index: 1; width: 40px; height: 40px; min-height: 40px; padding: 0; border-radius: 50%; background: rgba(255, 255, 255, 0.12); border: none; }
+.salle .salle-panneau .salle-panneau-croix.salle-a-ic .salle-repli { display: none; }
+.salle .salle-panneau .salle-panneau-croix .salle-ic { --icon-size: 18px; }
+/* L'en-tête fixe, plus compact (plus de place pour la carte) : boutons plus bas, le temps sur une ligne, la barre d'avancement plus fine. */
+.is-mobile .salle.salle-seance-fixe .salle-entete { margin-top: 0; margin-bottom: 6px; gap: 8px; }
+.is-mobile .salle.salle-seance-fixe .salle-entete .salle-retour, .is-mobile .salle.salle-seance-fixe .salle-entete .salle-mini { min-height: 36px; padding-top: 4px; padding-bottom: 4px; }
+.is-mobile .salle.salle-seance-fixe .salle-titre-seance h2 { font-size: 20px; line-height: 1.15; }
+.is-mobile .salle.salle-seance-fixe .salle-titre-seance > .salle-petit { margin-top: 0; font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.is-mobile .salle.salle-seance-fixe .salle-haut .salle-barre { height: 6px; margin-bottom: 8px; }
+/* 2.38.21 (demande : l'en-tête pas visible de base, la carte fixe) : sur téléphone, l'en-tête est caché ; glisser vers le bas
+   depuis le haut le fait descendre par-dessus la carte (2.38.29 : plus de poignée) (voile flou derrière, croix pour le refermer, un toucher à côté aussi). Sur Mac :
+   l'en-tête reste à sa place, sans poignée. */
+.is-mobile .salle.salle-seance-fixe > .salle-haut:not(.salle-haut-ouvert) { display: none; }
+.is-mobile .salle.salle-seance-fixe > .salle-haut-voile { position: fixed; inset: 0; z-index: 9990; background: rgba(6, 8, 10, 0.38); -webkit-backdrop-filter: blur(14px) saturate(1.4); backdrop-filter: blur(14px) saturate(1.4); animation: salle-panneau-fondu 220ms ease both; }
+.is-mobile .salle.salle-seance-fixe > .salle-haut.salle-haut-ouvert { position: fixed; left: 0; right: 0; top: 0; z-index: 9991; padding: calc(10px + env(safe-area-inset-top, 0px)) 16px 12px; border-radius: 0 0 28px 28px; background: rgba(26, 29, 34, 0.92); border-bottom: 1px solid rgba(255, 255, 255, 0.14); box-shadow: 0 10px 40px rgba(0, 0, 0, 0.35); animation: salle-haut-descend 300ms cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+.theme-light.is-mobile .salle.salle-seance-fixe > .salle-haut.salle-haut-ouvert { background: rgba(250, 251, 248, 0.94); }
+@keyframes salle-haut-descend { from { transform: translateY(-100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .salle-haut.salle-haut-ouvert, .salle-haut-voile { animation: none; } }
+/* 2.38.23 (demande : le menu « … » et l'aide comme les autres panneaux, fermés d'un toucher à côté) : l'aide, une feuille qui
+   monte du bas (comme « La séance ») ; le menu, une bulle sous le bouton « … », sur un voile flou. */
+.salle .salle-feuille-aide .salle-exo-aide { margin: 4px 0 0; }
+.salle .salle-feuille-aide > .salle-tempo, .salle .salle-feuille-aide > .salle-amplitude, .salle .salle-feuille-aide > .salle-pour-finir, .salle .salle-feuille-aide > .salle-explication { margin: 4px 2px; }
+.salle-bulle-fond { position: fixed; inset: 0; z-index: 9990; background: rgba(6, 8, 10, 0.3); -webkit-backdrop-filter: blur(12px) saturate(1.4); backdrop-filter: blur(12px) saturate(1.4); animation: salle-panneau-fondu 180ms ease both; }
+.salle-bulle { position: absolute; top: calc(env(safe-area-inset-top, 0px) + 72px); right: 14px; width: min(340px, calc(100vw - 28px)); max-height: 72dvh; overflow-y: auto; padding: 8px; border-radius: 22px; background: rgba(30, 33, 38, 0.95); border: 1px solid rgba(255, 255, 255, 0.12); box-shadow: 0 16px 50px rgba(0, 0, 0, 0.45); transform-origin: top right; animation: salle-bulle-ouvre 200ms cubic-bezier(0.2, 0.9, 0.25, 1) both; }
+.theme-light .salle-bulle { background: rgba(250, 251, 248, 0.97); border-color: rgba(0, 0, 0, 0.08); }
+.salle .salle-bulle .salle-actions { margin: 0; padding: 0; border: none; background: none; box-shadow: none; }
+@keyframes salle-bulle-ouvre { from { opacity: 0; transform: scale(0.92); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .salle-bulle, .salle-bulle-fond { animation: none; } }
+/* 2.38.24 : une ligne par série, plus serrées pour que les 4 tiennent (plus de ligne regroupée). */
+.is-mobile .salle .salle-serie { min-height: 34px; padding-top: 3px; padding-bottom: 3px; }
+.is-mobile .salle-series { gap: 2px; margin-top: 6px; }
+.is-mobile .salle .salle-exo { padding-top: 10px; padding-bottom: 10px; }
+/* Les blocs de la carte ne se tassent jamais (sinon le titre passe sous l'étage) : la carte défile un peu si besoin. */
+.is-mobile .salle .salle-exo > * { flex-shrink: 0; }
+/* 2.38.24 : l'en-tête de la carte sur une seule ligne (« Exercice 1 sur 8 · Étage 1 », Aide, « … ») : une ligne de gagnée ;
+   chiffres jusqu'à 76 px ; respiration et « sentir » à 16 px. Les 4 séries tiennent sous la cible. */
+.is-mobile .salle .salle-exo-tete { flex-wrap: nowrap; }
+.is-mobile .salle .salle-exo-tete .salle-exo-rang { display: inline-flex; align-items: center; gap: 6px; flex-wrap: nowrap; white-space: nowrap; min-width: 0; font-size: 12px; letter-spacing: 0.03em; }
+.is-mobile .salle .salle-exo-tete .salle-exo-etage { font-size: 12px; padding: 2px 8px; }
+.is-mobile .salle .salle-exo-tete .salle-aide-bouton { font-size: 15px; }
+.is-mobile .salle .salle-exo-tete-boutons { gap: 6px; }
+.is-mobile .salle-cible-chiffre { font-size: clamp(56px, calc((100cqw - 80px) / (0.66 * var(--n, 4))), 76px); }
+.is-mobile .salle .salle-exo-geste .salle-tempo, .is-mobile .salle .salle-exo-geste .salle-anim-cle { font-size: 16px; }
+/* Les lignes du tableau plus basses (pastille du numéro et coche à 26 px, chiffres à 19 px) : les 4 séries et les séries
+   légères tiennent. */
+.is-mobile .salle .salle-serie-n { width: 26px; height: 26px; min-width: 26px; font-size: 14px; }
+.is-mobile .salle .salle-serie-etat, .is-mobile .salle .salle-serie-etat > * { max-height: 26px; }
+.is-mobile .salle .salle-serie-etat .salle-ic { --icon-size: 15px; }
+.is-mobile .salle .salle-serie-val { font-size: 19px; }
+.is-mobile .salle .salle-serie-avant { font-size: 16px; }
+.is-mobile .salle .salle-serie { min-height: 32px; }
+/* (correctif) l'en-tête du tableau et « Maintenant » gardent leur petite taille ; la saisie un peu plus basse. */
+.is-mobile .salle .salle-series-tete .salle-serie-n, .is-mobile .salle .salle-series-tete .salle-serie-val, .is-mobile .salle .salle-series-tete .salle-serie-avant { font-size: 12px; width: auto; height: auto; min-width: 0; }
+.is-mobile .salle .salle-serie-courante .salle-serie-val { font-size: 14px; }
+.is-mobile .salle .salle-serie-saisie .salle-champ { height: 40px; font-size: 30px; }
+.is-mobile .salle .salle-serie-saisie .salle-pm { min-height: 40px; height: 40px; }
+/* 2.38.25 (demande : l'aide en moins de texte, sans perdre l'essentiel) : des lignes courtes avec leur icône. */
+.salle-aide-liste { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 10px; }
+.salle .salle-aide-liste .salle-repere { display: flex; align-items: flex-start; gap: 10px; font-size: 18px; font-weight: 650; line-height: 1.3; color: var(--salle-texte); }
+.salle .salle-aide-liste .salle-repere > .salle-ic { flex: none; width: 28px; height: 28px; border-radius: 9px; background: var(--salle-carte-2); --icon-size: 16px; }
+.salle .salle-aide-liste .salle-aide-reglage > .salle-ic, .salle .salle-aide-liste .salle-aide-fais > .salle-ic { background: var(--salle-accent-doux); color: var(--salle-accent); }
+.salle .salle-aide-liste .salle-aide-evite { color: var(--salle-texte-doux); }
+.salle .salle-aide-liste .salle-aide-danger > .salle-ic { background: var(--salle-danger-doux); color: var(--salle-danger); }
+.salle .salle-aide-liste .salle-aide-danger { font-size: 16px; }
+.salle .salle-feuille-aide .salle-exo-aide > .salle-bouton { margin-top: 12px; }
+/* 2.38.26 : la carte de séance ne défile jamais (elle s'ajuste, ajusterCarte) : les glissements ne se confondent plus. */
+.is-mobile .salle.salle-seance-fixe > .salle-exo { overflow: hidden; }
+/* 2.38.27 : un panneau qu'on tire ne fait pas rebondir la page ; sa liste défile sans rebondir non plus. */
+.salle-panneau { overscroll-behavior: contain; touch-action: pan-y; }
+.salle-haut.salle-haut-ouvert { touch-action: none; }
+/* 2.38.28 (demande : plus d'arrondis au bloc central, il est devenu la page) : sur téléphone, pendant la séance, la carte de
+   l'exercice n'a plus ni coins arrondis, ni cadre, ni ombre, ni fond à part : c'est la page. */
+.is-mobile .salle.salle-seance-fixe > .salle-exo { border-radius: 0; border: none; box-shadow: none; background: transparent; margin-left: calc(-1 * var(--size-4-4, 16px)); margin-right: calc(-1 * var(--size-4-4, 16px)); padding-left: 18px; padding-right: 18px; }
+.salle .salle-feuille-aide .salle-reglage { margin: 2px 0 8px; }
+.salle .salle-feuille-aide .salle-aide-liste { margin-top: 14px; padding-top: 12px; border-top: 1px solid var(--salle-bord); }
+/* 2.38.29 : la grande hauteur d'une feuille du bas (tirée vers le haut) : tout l'écran sous l'encoche (2.38.34 : on y passe en
+   la déplaçant, rendreTirable, plus en changeant sa hauteur). */
+.salle-panneau.salle-panneau-grand { max-height: calc(100dvh - env(safe-area-inset-top, 0px) - 10px); }
+/* 2.38.29 (demande : le bloc fondu dans le fond, sans contour) : pendant la séance sur téléphone, la barre du bouton n'a plus ni
+   filet au-dessus ni fond à part : le bouton est posé sur la page. */
+.is-mobile .salle.salle-seance-fixe > .salle-barre-bas { border-top: none; background: transparent; -webkit-backdrop-filter: none; backdrop-filter: none; }
+/* 2.38.30 (demande : la saisie du poids et des rép. un peu plus grosse, avec la place libre) : sur téléphone, pendant la
+   séance, le tableau colle moins au texte du dessus, et ajusterCarte donne la place libre aux lignes de saisie
+   (--salle-saisie-plus). La feuille du bas ne rebondit plus dans sa liste (plus de vide en haut). */
+.is-mobile .salle.salle-seance-fixe > .salle-exo > .salle-series { padding-top: 2px; }
+.is-mobile .salle.salle-seance-fixe > .salle-exo { margin-bottom: 0; }   /* 8 px de plus pour la saisie ; la barre du bouton garde son espace */
+.is-mobile .salle.salle-seance-fixe .salle-serie-saisie .salle-champ { height: calc(40px + var(--salle-saisie-plus, 0px)); font-size: calc(30px + var(--salle-saisie-plus, 0px) * 0.6); }
+.is-mobile .salle.salle-seance-fixe .salle-serie-saisie .salle-pm { min-height: calc(40px + var(--salle-saisie-plus, 0px)); height: calc(40px + var(--salle-saisie-plus, 0px)); }
+.salle-panneau { overscroll-behavior: none; }
+/* 2.38.32 (demande : de l'espace juste au-dessus du cadre jaune) : sur téléphone, pendant la séance, la ligne en cours
+   (« Maintenant ») se détache de la ligne d'au-dessus. */
+.is-mobile .salle.salle-seance-fixe .salle-serie-courante { margin-top: 10px; }
+/* 2.38.33 (demande : le bloc de saisie trop tassé, pas beau) : la ligne en cours reprend son espace intérieur (les lignes
+   serrées de la 2.38.24 l'avaient mis à 3 px), ses deux lignes de saisie s'écartent, et elle se détache aussi en dessous. */
+.is-mobile .salle.salle-seance-fixe .salle-serie-courante { padding: 10px 12px 16px; margin-bottom: 6px; }   /* 2.38.52 (demande : un peu d'espace sous la saisie) : 12 → 16 px en bas */
+.is-mobile .salle.salle-seance-fixe .salle-serie-saisie .salle-compteur { margin-top: 8px; }
+/* 2.38.35 (sa capture de l'échauffement : un grand vide sous le titre, la phrase coupée) : sur téléphone, l'échauffement se
+   lit d'en haut (titre, 5 min de vélo, la phrase en entier, les rappels) ; le niveau du vélo et le minuteur, ce qu'on
+   touche, descendent en bas, au-dessus de « Fait » (comme le tableau des séries). */
+.is-mobile .salle .salle-exo.salle-ech > .salle-exo-cible { margin-top: 14px; }
+.is-mobile .salle .salle-exo.salle-ech > .salle-petit { margin-top: auto; padding-top: 12px; }
+/* 2.38.36 (demande : le menu « … » s'ouvre comme un capteur photo, petit puis il grossit) : la bulle part du bouton « … »
+   (son centre, juste au-dessus du coin droit de la bulle), minuscule et ronde, grandit avec un léger rebond, puis son contenu
+   apparaît ; refermée, elle rentre dans le bouton. */
+.salle-bulle { transform-origin: calc(100% - 18px) -24px; animation: salle-bulle-ouvre 380ms cubic-bezier(0.2, 0.9, 0.3, 1) both; }
+.salle-bulle > * { animation: salle-bulle-contenu 260ms ease 90ms both; }
+.salle-bulle.salle-bulle-ferme { animation: salle-bulle-rentre 190ms cubic-bezier(0.4, 0, 1, 1) both; }
+.salle-bulle-fond.salle-bulle-ferme { animation: salle-bulle-fond-part 190ms ease both; }
+@keyframes salle-bulle-ouvre {
+  0% { opacity: 0; transform: scale(0.1); border-radius: 60px; }
+  30% { opacity: 1; }
+  70% { transform: scale(1.025); border-radius: 24px; }
+  100% { opacity: 1; transform: none; border-radius: 22px; }
+}
+@keyframes salle-bulle-contenu { from { opacity: 0; } to { opacity: 1; } }
+@keyframes salle-bulle-rentre { from { opacity: 1; transform: none; } to { opacity: 0; transform: scale(0.1); border-radius: 60px; } }
+@keyframes salle-bulle-fond-part { to { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .salle-bulle, .salle-bulle > *, .salle-bulle-fond { animation: none; } }
+/* 2.38.39 (demande : la liste de « La séance » ne glisse pas de façon fluide) : le défilement reste au téléphone, sans attendre
+   le code. À mi-hauteur, la feuille ne défile pas : le doigt la tire (vers le haut, elle grandit ; vers le bas, elle part).
+   En grand, sa liste défile normalement ; tout en haut, tirer vers le bas la fait redescendre. En grand, plus de flou derrière
+   (on ne le voit presque plus et il coûte à chaque image). Les lignes de la liste ne rapetissent plus et ne grisent plus sous
+   le doigt quand on fait défiler. */
+.salle-panneau:not(.salle-panneau-grand) { touch-action: none; }
+.salle-panneau.salle-panneau-grand { touch-action: pan-y; }
+.salle-panneau-fond:has(> .salle-panneau.salle-panneau-grand) { -webkit-backdrop-filter: none; backdrop-filter: none; background: rgba(6, 8, 10, 0.72); }
+.salle-panneau.salle-panneau-grand { background: rgb(26, 29, 34); }   /* opaque : rien ne transparaît sans le flou */
+.theme-light .salle-panneau.salle-panneau-grand { background: rgb(250, 251, 248); }
+.salle .salle-panneau .salle-rang:active { transform: none; }
+.salle .salle-panneau .salle-rang:not(.salle-courant):hover, .salle .salle-panneau .salle-rang:not(.salle-courant):active { background: transparent; box-shadow: none; }
+/* 2.38.40 (demande : il reste de la place en haut, la prendre) : pendant la séance sur téléphone, la carte commence juste sous
+   l'encoche : plus les 8 px d'Obsidian sous la zone sûre, ni le haut de la page (12 px), ni le haut de la carte (10 → 4 px).
+   Tout remonte d'environ 26 px ; la bulle du menu « … » remonte d'autant, sous son bouton. */
+.is-phone .mod-root .workspace-leaf-content.salle-sans-barre:has(> .view-content.salle-seance-fixe) { --view-top-spacing: var(--safe-area-inset-top, env(safe-area-inset-top, 0px)); }
+.is-mobile .salle.salle-seance-fixe { padding-top: 0; }
+.is-mobile .salle.salle-seance-fixe > .salle-exo { padding-top: 4px; }
+.is-mobile .salle.salle-seance-fixe .salle-bulle { top: calc(env(safe-area-inset-top, 0px) + 46px); }
+/* 2.38.42 (demande : un peu d'espace en haut de l'écran de repos, sous l'encoche ; y mettre tous les repères) : le repos ne
+   se centre plus au-delà de l'écran (son haut passait sous l'encoche) : il commence sous l'encoche et défile s'il est long ;
+   le chrono un peu moins haut ; les « à retenir » et « à éviter » en plus petit, sous les repères principaux. */
+.salle .salle-repos:not(.salle-ech-minuteur) { justify-content: flex-start; overflow-y: auto; overscroll-behavior: contain; gap: 14px; padding-top: calc(32px + env(safe-area-inset-top, 0px)); }
+.salle .salle-repos:not(.salle-ech-minuteur) > :first-child { margin-top: auto; }
+.salle .salle-repos:not(.salle-ech-minuteur) > :last-child { margin-bottom: auto; }
+.salle .salle-repos:not(.salle-ech-minuteur) > * { flex-shrink: 0; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-temps { font-size: clamp(96px, 32vw, 220px); }
+.salle .salle-repos .salle-repos-reperes .salle-repere-effort { color: var(--salle-minuteur-texte); }
+.salle .salle-repos .salle-repos-reperes .salle-repere-effort > .salle-ic { color: var(--salle-minuteur-lime); }
+.salle .salle-repos .salle-repos-reperes .salle-repere-petit { font-size: 15px; font-weight: 550; line-height: 1.3; color: rgba(244, 246, 248, 0.8); }
+.salle .salle-repos .salle-repos-reperes .salle-repere-petit > .salle-ic { --icon-size: 16px; margin-top: 1px; }
+.salle .salle-repos .salle-repos-reperes .salle-repere-petit.salle-repere-fais > .salle-ic { color: var(--salle-minuteur-lime); }
+.salle .salle-repos .salle-repos-reperes .salle-repere-petit.salle-repere-evite > .salle-ic { color: #ff8a80; }
+/* (correctif) le trait de séparation des repères d'étage (« Monte à l'étage 2 ———— ») ne suit pas les repères du repos ni
+   la sécurité de l'aide. */
+.salle .salle-repos-reperes .salle-repere::after, .salle .salle-aide-liste .salle-repere::after { content: none; }
+/* 2.38.43 (demande : « Par côté » et l'effort, utiles mais mal affichés) : deux pastilles sous la charge, côte à côte (l'une
+   sous l'autre si la place manque), une icône verte devant. */
+.salle .salle-cible-infos { display: flex; flex-wrap: wrap; gap: 8px; margin: 10px 0 2px; }
+.salle .salle-cible-infos > .salle-cible-disques, .salle .salle-cible-infos > .salle-effort { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 6px 14px 6px 6px; border-radius: 999px; background: var(--salle-carte-2); color: var(--salle-texte); font-weight: 700; line-height: 1.2; letter-spacing: -0.01em; }
+.salle .salle-cible-infos .salle-ic { flex: none; display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--salle-accent-doux); color: var(--salle-accent); --icon-size: 15px; }
+.salle .salle-cible-infos .salle-ic svg { stroke-width: 2.5; }
+/* 2.38.45 : le voile de l'en-tête se tire (glisser vers le haut le referme) : rien d'autre ne bouge sous le doigt. */
+.salle-haut-voile { touch-action: none; }
+/* 2.38.46 (demande : les 3 boutons du haut, « Exercice x sur y », Aide et « … », ne marchent pas) : depuis que la carte
+   commence sous l'encoche (2.38.40), elle passe sous la barre d'en-tête d'Obsidian, invisible pendant la séance mais qui
+   prenait encore les touchers. Pendant la séance sur téléphone, cette barre est retirée (l'en-tête de la séance la remplace). */
+.is-phone .mod-root .workspace-leaf-content:has(> .view-content.salle) > .view-header { display: none; }   /* 2.38.58 : sur tous les écrans du plugin (plein écran d'office) */
+/* (demande : l'image est trop collée) : le titre et l'image se détachent de la rangée « Exercice x sur y · Aide · … ». */
+.is-mobile .salle.salle-seance-fixe > .salle-exo > .salle-exo-haut { margin-top: 10px; }
+/* 2.38.48 (demande : la taille du texte était mieux avant) : les pastilles gardent la taille d'avant (« Par côté » 19 px,
+   l'effort 18 px), la règle des pastilles ne la réduit plus à 16 px. */
+/* 2.38.49 (demande : la charge et les séries du prochain exercice sur deux lignes) : la charge en gros, les séries dessous,
+   plus petites. */
+.salle .salle-suite-cible .salle-suite-series { margin-top: 2px; font-size: 22px; font-weight: 700; letter-spacing: -0.01em; opacity: 0.8; }
+/* 2.38.59 (demande : mettre en valeur un changement de poids ou de répétitions) : le nombre qui change en vert, et une
+   pastille verte « Plus lourd : 7,5 → 10 kg » en tête des pastilles ; au repos, pareil sous la charge de la série qui vient. */
+.salle .salle-cible-chiffre.salle-change { color: var(--salle-accent); }
+.salle .salle-cible-infos > .salle-cible-change { display: inline-flex; align-items: center; gap: 8px; margin: 0; padding: 6px 14px 6px 6px; border-radius: 999px; background: var(--salle-accent-doux); color: var(--salle-accent); font-size: 18px; font-weight: 800; line-height: 1.2; letter-spacing: -0.01em; box-shadow: 0 0 0 1.5px var(--salle-accent-fond) inset; }
+.salle .salle-cible-infos > .salle-cible-change .salle-ic { background: var(--salle-accent-fond); color: var(--salle-sur-accent); }
+.salle .salle-repos .salle-suite-charge .salle-change { color: var(--salle-minuteur-lime); }
+.salle .salle-repos .salle-suite-change { display: inline-flex; align-items: center; gap: 8px; margin-top: 8px; padding: 6px 14px 6px 6px; border-radius: 999px; background: rgba(200, 245, 60, 0.14); color: var(--salle-minuteur-lime); font-size: 18px; font-weight: 800; letter-spacing: -0.01em; }
+.salle .salle-repos .salle-suite-change .salle-ic { display: inline-flex; align-items: center; justify-content: center; width: 26px; height: 26px; border-radius: 50%; background: var(--salle-minuteur-lime); color: #10140a; --icon-size: 15px; }
+/* Sur le fond vert du « GO », le changement reste lisible (le vert sur vert disparaissait). */
+.salle .salle-repos.salle-repos-fini .salle-suite-charge .salle-change, .salle .salle-repos.salle-repos-fini .salle-suite-change { color: inherit; }
+.salle .salle-repos.salle-repos-fini .salle-suite-change { background: rgba(16, 20, 10, 0.1); }
+.salle .salle-repos.salle-repos-fini .salle-suite-change .salle-ic { background: #10140a; color: var(--salle-minuteur-lime); }
+/* 2.38.60 (demande : un logo pour modifier, près de la série) : le crayon de la dernière série notée, un rond vert à la place
+   de la coche. */
+.salle .salle-serie-etat > .salle-serie-modifier { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; min-height: 32px; max-height: none; margin: 0; padding: 0; border-radius: 50%; border: 1.5px solid var(--salle-accent-fond); background: var(--salle-accent-doux); color: var(--salle-accent); box-shadow: none; cursor: pointer; }
+.salle .salle-serie-modifier .salle-ic { --icon-size: 15px; }
+.salle .salle-serie-faite .salle-serie-etat.salle-etat-crayon, .is-mobile .salle .salle-serie-etat.salle-etat-crayon { background: none; max-height: none; overflow: visible; }   /* pas le rond vert de la coche derrière */
+.salle .salle-serie-modifier.salle-a-ic .salle-repli { display: none; }
+/* 2.38.63 (demande : des pixels juste au-dessus du GO) : le « GO » se détache de « C'est reparti ». */
+.salle .salle-repos.salle-repos-fini:not(.salle-ech-minuteur) .salle-repos-temps { margin-top: 20px; }
+/* (check-up 2.38.64) Sur le fond vert du « GO », les repères, leurs icônes et la question restent lisibles (sombres) ; en
+   thème clair, la question du repos est sur le fond sombre du minuteur (avant : blanc sur blanc) et « boire » et les lignes
+   « à faire » restent vertes. */
+.salle .salle-repos.salle-repos-fini .salle-repos-reperes .salle-repere, .salle .salle-repos.salle-repos-fini .salle-repos-reperes .salle-repere > .salle-ic, .salle .salle-repos.salle-repos-fini .salle-repos-reperes .salle-repere.salle-repere-petit > .salle-ic { color: var(--salle-sur-accent); }
+.salle .salle-repos.salle-repos-fini > .salle-carte { background: rgba(16, 20, 10, 0.1); color: var(--salle-sur-accent); }
+.salle .salle-repos:not(.salle-repos-fini) > .salle-carte { background: #16191e; }
+.salle .salle-repos:not(.salle-repos-fini) .salle-repos-reperes .salle-repere-boire, .salle .salle-repos:not(.salle-repos-fini) .salle-repos-reperes .salle-repere-fais:not(.salle-repere-petit) { color: var(--salle-minuteur-lime); }
+/* 2.38.65 (demande : le glissement bugue encore) : la carte et le bouton du bas ne défilent jamais : l'iPhone n'y tente plus
+   de défilement ni de rebond pendant un glissement, le doigt est suivi sans à-coups (le repos et les feuilles défilent
+   toujours, ils ne sont pas dedans). */
+.is-mobile .salle.salle-seance-fixe > .salle-exo, .is-mobile .salle.salle-seance-fixe > .salle-barre-bas { touch-action: none; }
+/* 2.38.72 (demande : un exercice fait passe en bas de « La séance », barré) : le nom barré, la ligne plus discrète. */
+.salle .salle-exo-liste .salle-rang.salle-barre > span:first-child { text-decoration: line-through; text-decoration-thickness: 1.5px; }
+.salle .salle-exo-liste .salle-rang.salle-barre:not(.salle-courant) { opacity: 0.6; }
+/* 2.38.74 (demande : aussi fluide que sur le Mac) : « La séance » et l'aide défilent comme une page, quelle que soit leur
+   hauteur (avant : à mi-hauteur, touch-action: none, le doigt tirait la feuille au lieu de faire défiler). */
+.salle-panneau:not(.salle-panneau-grand) { touch-action: pan-y; }
+/* La croix de l'aide (2.38.74) : le premier bloc sous elle lui laisse sa place. */
+.salle .salle-feuille-aide > .salle-panneau-croix + * { padding-right: 46px; }
+
+/* ── 2.41.15 : le repos refait (demande : refaire l'écran du repos, et y voir le poids par côté) ──
+   De haut en bas : le temps au centre d'un anneau lime qui se vide (il remplace la jauge du bas) ; la série qui vient dans
+   une carte (« Ensuite : … » en petit, la charge en gros, ses séries, le changement, puis « Par côté » avec un disque dessiné
+   par disque, ou « Dans chaque main ») ; la vignette de la vidéo ; les repères du geste ; la consigne. */
+.salle .salle-repos:not(.salle-ech-minuteur) { gap: 16px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-haut { position: relative; display: grid; place-items: center; width: min(74vw, 300px); aspect-ratio: 1; gap: 0; }
+.salle .salle-repos-anneau {
+  --salle-part: 1;
+  grid-area: 1 / 1; width: 100%; height: 100%; border-radius: 50%;
+  background: conic-gradient(var(--salle-minuteur-lime) calc(var(--salle-part) * 360deg), var(--salle-minuteur-piste) 0);
+  -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 12px), #000 calc(100% - 11px));
+  mask: radial-gradient(farthest-side, transparent calc(100% - 12px), #000 calc(100% - 11px));
+  filter: drop-shadow(0 0 12px rgba(200, 245, 60, 0.28));
+}
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-gauche { grid-area: 1 / 1; z-index: 1; align-items: center; gap: 4px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-titre { font-size: 14px; letter-spacing: 0.14em; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-temps { font-size: clamp(64px, 21vw, 104px); margin-top: 0; letter-spacing: -0.04em; }
+.salle .salle-repos-bientot .salle-repos-anneau { filter: drop-shadow(0 0 18px rgba(200, 245, 60, 0.6)); }
+.salle .salle-repos-fini .salle-repos-anneau { background: rgba(16, 20, 10, 0.16); filter: none; }
+.salle .salle-repos.salle-repos-fini:not(.salle-ech-minuteur) .salle-repos-temps { margin-top: 0; }
+
+/* La carte de la série qui vient : « Ensuite » et la charge sont deux blocs collés (la vignette reste juste après). */
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-suite {
+  width: min(100%, 420px); box-sizing: border-box; max-width: none; margin: 0; padding: 14px 18px;
+  border-radius: 22px; background: var(--salle-minuteur-bouton); text-align: left;
+  font-size: 15px; font-weight: 650; color: rgba(244, 246, 248, 0.72);
+}
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-suite.salle-suite-avec { border-radius: 22px 22px 0 0; padding-bottom: 2px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-suite-avec + .salle-suite-cible {
+  width: min(100%, 420px); box-sizing: border-box; margin-top: -16px; padding: 2px 18px 16px;
+  border-radius: 0 0 22px 22px; background: var(--salle-minuteur-bouton); text-align: left;
+}
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-suite-charge { font-size: clamp(40px, 12vw, 52px); line-height: 1.05; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-suite-cible .salle-suite-series { font-size: 18px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-suite-change { font-size: 15px; margin-top: 10px; }
+
+/* Par côté : un disque par disque à mettre, la taille suit le poids ; le total d'un côté au bout. */
+.salle .salle-repos .salle-suite-disques, .salle .salle-repos .salle-suite-main {
+  display: flex; flex-wrap: nowrap; align-items: center; justify-content: flex-start; gap: 10px; margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid rgba(255, 255, 255, 0.1); font-size: 17px; font-weight: 750; letter-spacing: -0.01em; color: var(--salle-minuteur-texte);
+}
+.salle .salle-repos .salle-suite-main .salle-ic { color: var(--salle-minuteur-lime); --icon-size: 20px; }
+.salle .salle-disques-titre { color: rgba(244, 246, 248, 0.72); font-weight: 650; }
+.salle .salle-disques-pile { display: inline-flex; align-items: center; gap: 5px; }
+.salle .salle-disque {
+  display: inline-flex; align-items: center; justify-content: center; box-sizing: border-box;
+  width: 34px; height: 34px; border-radius: 50%; border: 3px solid var(--salle-minuteur-lime);
+  background: #10140a; color: var(--salle-minuteur-texte); font-size: 12px; font-weight: 800; font-variant-numeric: tabular-nums;
+}
+.salle .salle-disque-20 { width: 48px; height: 48px; font-size: 15px; }
+.salle .salle-disque-10 { width: 42px; height: 42px; font-size: 14px; }
+.salle .salle-disque-5 { width: 36px; height: 36px; }
+.salle .salle-disque-2-5 { width: 32px; height: 32px; font-size: 11px; border-width: 2px; }
+.salle .salle-disque-1-25 { width: 30px; height: 30px; font-size: 10px; border-width: 2px; }
+/* « Par côté » à gauche et le total d'un côté à droite ; les disques dessous, sur toute la largeur. */
+.salle .salle-repos .salle-suite-disques { display: grid; grid-template-columns: minmax(0, 1fr) auto; row-gap: 10px; }
+.salle .salle-disques-titre, .salle .salle-disques-total { white-space: nowrap; }
+.salle .salle-disques-pile { grid-column: 1 / -1; grid-row: 2; flex-wrap: wrap; }
+.salle .salle-disques-total { color: var(--salle-minuteur-lime); }
+.salle .salle-repos-fini .salle-suite-disques, .salle .salle-repos-fini .salle-suite-main { border-top-color: rgba(16, 20, 10, 0.2); color: var(--salle-sur-accent); }
+.salle .salle-repos-fini .salle-disques-titre, .salle .salle-repos-fini .salle-disques-total, .salle .salle-repos-fini .salle-suite-main .salle-ic { color: var(--salle-sur-accent); }
+.salle .salle-repos-fini .salle-disque { border-color: #10140a; background: transparent; color: var(--salle-sur-accent); }
+.salle .salle-repos.salle-repos-fini:not(.salle-ech-minuteur) .salle-suite { color: var(--salle-sur-accent); background: rgba(16, 20, 10, 0.1); }
+.salle .salle-repos.salle-repos-fini:not(.salle-ech-minuteur) .salle-suite-avec + .salle-suite-cible { background: rgba(16, 20, 10, 0.1); }
+
+/* Les repères : une carte plus calme, le texte un peu plus petit (la charge est ce qu'on lit en premier). */
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-reperes { width: min(100%, 420px); box-sizing: border-box; padding: 14px 18px; border-radius: 22px; gap: 10px; background: rgba(255, 255, 255, 0.06); }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-reperes .salle-repere { font-size: 17px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-repos-reperes .salle-repere-petit { font-size: 14px; }
+.salle .salle-repos:not(.salle-ech-minuteur) .salle-consigne { width: min(100%, 420px); box-sizing: border-box; border-radius: 22px; }
+.salle .salle-repos:not(.salle-ech-minuteur) > .salle-carte { border-radius: 22px; }
+@media (prefers-reduced-motion: reduce) { .salle .salle-repos-anneau { filter: none; } }

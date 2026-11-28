@@ -1,0 +1,31 @@
+/* Selon l'appareil, pour tous les écrans : l'iPhone (zone sûre, écran qui ne glisse plus), les écrans étroits et « moins de
+   mouvement » quand la règle vaut partout. Un écran garde les siennes à la fin de son fichier (« Selon l'appareil »).
+   Toujours en dernier : ces règles corrigent les précédentes. */
+/* ── iPhone : de la place sous le dernier bouton (barre flottante d'Obsidian et zone sûre du bas) ── */
+.is-mobile .salle { padding-bottom: var(--size-4-6, 24px); }
+.is-mobile .salle-fin { height: calc(140px + env(safe-area-inset-bottom, 0px)); }
+
+/* Écrans étroits (iPhone SE, 375 px et moins) */
+@media (max-width: 400px) {
+  .salle { padding-left: var(--size-4-3, 12px); padding-right: var(--size-4-3, 12px); }
+  /* Les cartes gardent de l'air (16 px 18 px ailleurs) ; la carte héros a ses propres marges (61-accueil.css). */
+  .salle-carte { padding: 14px 16px; }
+  .salle-vedette { padding: 16px; }
+  .salle .salle-pm { width: 52px; }
+  /* Le minuteur du repos et ses boutons : leur taille étroite est dans 63-seance.css. */
+}
+
+/* Moins de mouvement si l'appareil le demande */
+@media (prefers-reduced-motion: reduce) {
+  .salle .salle-bouton, .salle .salle-tuile, .salle .salle-retour, .salle .salle-rang, .salle-barre-pleine, .salle-repos-jauge-pleine, .salle-niveau-plein { transition: none; }
+  .salle .salle-bouton:active, .salle .salle-tuile:active, .salle .salle-retour:active, .salle .salle-rang:active { transform: none; }
+}
+
+/* ── iPhone : l'écran ne glisse plus (15/11 : « l'écran glisse trop, c'est désagréable ») ──
+   La zone qui défile (la vue du plugin dans Obsidian) ne bouge plus que de haut en bas : pas de glissement de côté
+   (touch-action: pan-y, overflow-x: hidden) et pas d'effet élastique qui entraîne tout l'écran (overscroll-behavior: none).
+   La grille de régularité de Progrès garde son défilement de côté, sans entraîner la page. */
+.workspace-leaf-content[data-type="salle-vue"],
+.workspace-leaf-content[data-type="salle-vue"] > .view-content { overflow-x: hidden; overscroll-behavior: none; }
+.workspace-leaf-content[data-type="salle-vue"] > .view-content { touch-action: pan-y; }
+.salle .salle-grille { touch-action: pan-x pan-y; overscroll-behavior-x: contain; }
